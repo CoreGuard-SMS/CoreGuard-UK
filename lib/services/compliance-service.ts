@@ -176,11 +176,11 @@ export async function getExpiringLicences(organisationId: string, daysThreshold:
 export async function getComplianceScore(organisationId: string): Promise<number> {
   try {
     // Get total number of active employees
-    const { data: employees, error: empError } = await supabaseAdmin
+    const { data: employees, error: empError } = await (supabaseAdmin
       .from('employees')
       .select('id')
       .eq('organisation_id', organisationId)
-      .eq('status', 'active');
+      .eq('status', 'active') as any);
     
     if (empError || !employees || employees.length === 0) {
       return 100; // No employees = perfect compliance

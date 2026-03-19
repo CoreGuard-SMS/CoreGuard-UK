@@ -47,7 +47,7 @@ export async function getSiteById(id: string): Promise<Site | null> {
 }
 
 export async function createSite(site: Omit<Site, 'id' | 'createdAt'>): Promise<Site | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('sites')
     .insert({
       ...site,
@@ -65,7 +65,7 @@ export async function createSite(site: Omit<Site, 'id' | 'createdAt'>): Promise<
 }
 
 export async function updateSite(id: string, updates: Partial<Site>): Promise<Site | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('sites')
     .update(updates)
     .eq('id', id)

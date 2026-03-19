@@ -46,14 +46,14 @@ export async function getShiftById(id: string): Promise<Shift | null> {
 }
 
 export async function createShift(shift: Omit<Shift, 'id' | 'createdAt'>): Promise<Shift | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin
     .from('shifts')
     .insert({
       ...shift,
       created_at: new Date().toISOString(),
-    })
+    } as any)
     .select()
-    .single();
+    .single() as any);
   
   if (error) {
     console.error('Error creating shift:', error);
@@ -64,12 +64,12 @@ export async function createShift(shift: Omit<Shift, 'id' | 'createdAt'>): Promi
 }
 
 export async function updateShift(id: string, updates: Partial<Shift>): Promise<Shift | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin
     .from('shifts')
-    .update(updates)
+    .update(updates as any)
     .eq('id', id)
     .select()
-    .single();
+    .single() as any);
   
   if (error) {
     console.error('Error updating shift:', error);
@@ -141,16 +141,16 @@ export async function assignEmployeeToShift(
   employeeId: string,
   role: string
 ): Promise<ShiftAssignment | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin
     .from('shift_assignments')
     .insert({
       shift_id: shiftId,
       employee_id: employeeId,
       assigned_role: role,
       status: 'assigned',
-    })
+    } as any)
     .select()
-    .single();
+    .single() as any);
   
   if (error) {
     console.error('Error assigning employee to shift:', error);

@@ -77,12 +77,12 @@ export async function getEmployeeLicences(employeeId: string): Promise<Licence[]
 export async function getEmployeeAvailability(employeeId: string, date: Date): Promise<boolean> {
   const dateStr = date.toISOString().split('T')[0];
   
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin
     .from('availability')
     .select('is_available')
     .eq('employee_id', employeeId)
     .eq('date', dateStr)
-    .single();
+    .single() as any);
   
   if (error || !data) {
     // Default to available if no record found

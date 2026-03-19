@@ -67,7 +67,7 @@ export async function checkExpiringCertifications(organisationId: string, daysTh
   const thresholdDate = new Date();
   thresholdDate.setDate(thresholdDate.getDate() + daysThreshold);
   
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin
     .from('training_records')
     .select(`
       *,
@@ -81,7 +81,7 @@ export async function checkExpiringCertifications(organisationId: string, daysTh
     .eq('employees.organisation_id', organisationId)
     .lte('expiry_date', thresholdDate.toISOString())
     .gt('expiry_date', new Date().toISOString())
-    .eq('status', 'active');
+    .eq('status', 'active') as any);
   
   if (error) {
     console.error('Error checking expiring certifications:', error);

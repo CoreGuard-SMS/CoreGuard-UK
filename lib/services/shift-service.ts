@@ -64,12 +64,12 @@ export async function createShift(shift: Omit<Shift, 'id' | 'createdAt'>): Promi
 }
 
 export async function updateShift(id: string, updates: Partial<Shift>): Promise<Shift | null> {
-  const { data, error } = await (supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('shifts')
     .update(updates as any)
     .eq('id', id)
     .select()
-    .single() as any);
+    .single();
   
   if (error) {
     console.error('Error updating shift:', error);

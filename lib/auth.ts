@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { dash } from "@better-auth/infra";
 
 export const auth = betterAuth({
   database: {
@@ -17,6 +18,9 @@ export const auth = betterAuth({
       enabled: true,
     },
   },
+  plugins: [
+    dash()
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;

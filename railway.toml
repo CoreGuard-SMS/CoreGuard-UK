@@ -15,9 +15,6 @@ name = "app"
 [services.variables]
 NODE_ENV = "production"
 
-[nixpacks]
-node_version = "20"
-
 # Database Configuration (Railway PostgreSQL)
 DATABASE_URL = "${{DATABASE_URL}}"
 

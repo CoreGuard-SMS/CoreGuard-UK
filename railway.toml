@@ -37,8 +37,6 @@ RESEND_API_KEY = "${{RESEND_API_KEY}}"
 BETTER_AUTH_SECRET = "${{BETTER_AUTH_SECRET}}"
 BETTER_AUTH_URL = "${{PUBLIC_URL}}"
 
-[services]
-[services.web]
 [services.web.healthcheck]
 path = "/api/health"
 port = 3000

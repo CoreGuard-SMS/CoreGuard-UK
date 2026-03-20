@@ -97,7 +97,7 @@ export async function validateSitePin(siteId: string, pin: string): Promise<bool
 }
 
 export async function deleteSite(id: string): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await (supabaseAdmin as any)
     .from('sites')
     .delete()
     .eq('id', id);

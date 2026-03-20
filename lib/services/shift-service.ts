@@ -80,7 +80,7 @@ export async function updateShift(id: string, updates: Partial<Shift>): Promise<
 }
 
 export async function deleteShift(id: string): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await (supabaseAdmin as any)
     .from('shifts')
     .delete()
     .eq('id', id);
@@ -161,7 +161,7 @@ export async function assignEmployeeToShift(
 }
 
 export async function unassignEmployeeFromShift(assignmentId: string): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await (supabaseAdmin as any)
     .from('shift_assignments')
     .delete()
     .eq('id', assignmentId);

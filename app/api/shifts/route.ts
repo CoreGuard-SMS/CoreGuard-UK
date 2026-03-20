@@ -37,12 +37,23 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      // Get site name for the response
+      let fetchedSiteName = null;
+      if (shift.site_id) {
+        const { data: site } = await supabase
+          .from("sites")
+          .select("name")
+          .eq("id", shift.site_id)
+          .single();
+        fetchedSiteName = site?.name;
+      }
+
       // Map database fields to frontend format
       const responseShift = {
         id: shift.id,
         organisationId: shift.organisation_id,
         siteId: shift.site_id,
-        siteName: shift.site_name,
+        siteName: fetchedSiteName,
         startTime: shift.start_time,
         endTime: shift.end_time,
         breakDuration: shift.break_duration,
@@ -92,12 +103,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get all site names for mapping
+    const siteIds = [...new Set((shifts || []).map(shift => shift.site_id).filter(Boolean))];
+    const { data: sites } = await supabase
+      .from("sites")
+      .select("id, name")
+      .in("id", siteIds);
+
+    const siteMap = new Map((sites || []).map(site => [site.id, site.name]));
+
     // Map database fields to frontend format
     const responseShifts = (shifts || []).map(shift => ({
       id: shift.id,
       organisationId: shift.organisation_id,
       siteId: shift.site_id,
-      siteName: shift.site_name,
+      siteName: siteMap.get(shift.site_id) || null,
       startTime: shift.start_time,
       endTime: shift.end_time,
       breakDuration: shift.break_duration,
@@ -153,7 +173,6 @@ export async function POST(request: NextRequest) {
       .insert({
         organisation_id: organisationId,
         site_id: siteId,
-        site_name: siteName,
         start_time: startTime,
         end_time: endTime,
         break_duration: breakDuration || 0,
@@ -175,12 +194,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get site name for the response
+    let fetchedSiteName = null;
+    if (siteId) {
+      const { data: site } = await supabase
+        .from("sites")
+        .select("name")
+        .eq("id", siteId)
+        .single();
+      fetchedSiteName = site?.name;
+    }
+
     // Map database fields back to frontend format
     const responseShift = {
       id: shift.id,
       organisationId: shift.organisation_id,
       siteId: shift.site_id,
-      siteName: shift.site_name,
+      siteName: fetchedSiteName,
       startTime: shift.start_time,
       endTime: shift.end_time,
       breakDuration: shift.break_duration,

@@ -31,12 +31,19 @@ export async function getShifts(filters?: {
     const data = await response.json();
     
     // Convert date strings to Date objects
-    return (data || []).map((shift: any) => ({
-      ...shift,
-      startTime: new Date(shift.startTime),
-      endTime: new Date(shift.endTime),
-      createdAt: new Date(shift.createdAt),
-    }));
+    return (data || []).map((shift: any) => {
+      if (!shift || !shift.startTime || !shift.endTime) {
+        console.error('Invalid shift data:', shift);
+        return null;
+      }
+      
+      return {
+        ...shift,
+        startTime: new Date(shift.startTime),
+        endTime: new Date(shift.endTime),
+        createdAt: shift.createdAt ? new Date(shift.createdAt) : new Date(),
+      };
+    }).filter(Boolean);
   } catch (error) {
     console.error('Error fetching shifts:', error);
     return [];
@@ -57,12 +64,17 @@ export async function getShiftById(id: string): Promise<Shift | null> {
 
     const data = await response.json();
     
+    if (!data || !data.startTime || !data.endTime) {
+      console.error('Invalid shift data:', data);
+      return null;
+    }
+    
     // Convert date strings to Date objects
     return {
       ...data,
       startTime: new Date(data.startTime),
       endTime: new Date(data.endTime),
-      createdAt: new Date(data.createdAt),
+      createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
     };
   } catch (error) {
     console.error('Error fetching shift:', error);

@@ -124,8 +124,18 @@ export default function MultiDayShiftCreator({
       : selectedDays;
 
     daysToCreate.forEach(day => {
+      if (!shiftTemplate.startTime || !shiftTemplate.endTime) {
+        console.error('Shift template times are not defined');
+        return;
+      }
+      
       const [startHour, startMinute] = shiftTemplate.startTime.split(':').map(Number);
       const [endHour, endMinute] = shiftTemplate.endTime.split(':').map(Number);
+      
+      if (isNaN(startHour) || isNaN(startMinute) || isNaN(endHour) || isNaN(endMinute)) {
+        console.error('Invalid time format in shift template');
+        return;
+      }
       
       const startTime = setMinutes(setHours(day, startHour), startMinute);
       const endTime = setMinutes(setHours(day, endHour), endMinute);

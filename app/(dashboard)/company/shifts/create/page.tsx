@@ -133,6 +133,11 @@ export default function CreateShiftPage() {
     
     for (const shift of bulkShifts) {
       try {
+        if (!shift.date || !shift.startTime || !shift.endTime) {
+          console.error('Shift data is incomplete:', shift);
+          continue;
+        }
+        
         const shiftData = {
           organisationId: shift.organisationId,
           siteId: shift.siteId,

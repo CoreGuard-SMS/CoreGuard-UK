@@ -134,10 +134,17 @@ export default function CreateShiftPage() {
     for (const shift of bulkShifts) {
       try {
         const shiftData = {
-          ...shift,
+          organisationId: shift.organisationId,
+          siteId: shift.siteId,
+          siteName: shift.siteName,
           startTime: new Date(`${shift.date}T${shift.startTime}`),
           endTime: new Date(`${shift.date}T${shift.endTime}`),
-          createdAt: new Date()
+          breakDuration: shift.breakDuration,
+          requiredRoles: shift.requiredRoles || [],
+          requiredTraining: shift.requiredTraining || [],
+          requiredLicences: shift.requiredLicences || [],
+          status: shift.status,
+          createdBy: shift.createdBy
         };
         
         const result = await createShift(shiftData);

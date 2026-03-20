@@ -194,6 +194,7 @@ export default function ShiftsPage() {
               endDate={endOfMonth(addMonths(new Date(), 1))}
               sites={sites}
               employees={[]} // We don't need employees for shift creation
+              user={user}
               onCreateShifts={handleCreateMultiDayShifts}
               onCancel={() => setShowMultiDayCreator(false)}
             />

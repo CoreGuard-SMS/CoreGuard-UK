@@ -28,6 +28,7 @@ interface MultiDayShiftCreatorProps {
   endDate: Date;
   sites: Site[];
   employees: Employee[];
+  user: any;
   onCreateShifts: (shifts: Partial<Shift>[]) => void;
   onCancel: () => void;
 }
@@ -37,6 +38,7 @@ export default function MultiDayShiftCreator({
   endDate, 
   sites, 
   employees, 
+  user,
   onCreateShifts, 
   onCancel 
 }: MultiDayShiftCreatorProps) {
@@ -129,7 +131,9 @@ export default function MultiDayShiftCreator({
       const endTime = setMinutes(setHours(day, endHour), endMinute);
 
       shifts.push({
+        organisationId: user?.organisationId,
         siteId: shiftTemplate.siteId,
+        siteName: sites.find(s => s.id === shiftTemplate.siteId)?.name,
         startTime,
         endTime,
         breakDuration: shiftTemplate.breakDuration,
@@ -137,6 +141,7 @@ export default function MultiDayShiftCreator({
         requiredTraining: shiftTemplate.requiredTraining,
         requiredLicences: shiftTemplate.requiredLicences,
         status: shiftTemplate.status,
+        createdBy: user?.id,
         recurring: recurringPattern.enabled ? {
           pattern: recurringPattern.type,
           interval: recurringPattern.interval,

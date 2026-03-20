@@ -1,7 +1,49 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, subMonths, isSameMonth, isSameDay, isToday, setHours, setMinutes, parseISO } from "date-fns";
+// Native date utilities to avoid TDZ issues
+const startOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
+const endOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
+const startOfWeek = (date: Date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+};
+const endOfWeek = (date: Date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? 0 : 7);
+  return new Date(d.setDate(diff));
+};
+const addDays = (date: Date, days: number) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+};
+const addMonths = (date: Date, months: number) => {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+};
+const subMonths = (date: Date, months: number) => addMonths(date, -months);
+const isSameMonth = (date1: Date, date2: Date) => 
+  date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth();
+const isSameDay = (date1: Date, date2: Date) => 
+  date1.getFullYear() === date2.getFullYear() && 
+  date1.getMonth() === date2.getMonth() && 
+  date1.getDate() === date2.getDate();
+const isToday = (date: Date) => isSameDay(date, new Date());
+const setHours = (date: Date, hours: number) => {
+  const d = new Date(date);
+  d.setHours(hours, 0, 0, 0);
+  return d;
+};
+const setMinutes = (date: Date, minutes: number) => {
+  const d = new Date(date);
+  d.setMinutes(minutes);
+  return d;
+};
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,8 +93,8 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
             hour12: false 
           });
         default:
-          // Fallback to date-fns for less critical formatting
-          return format(date, formatStr);
+          // Default fallback for unknown formats
+          return date.toLocaleString();
       }
     } catch (error) {
       console.error('Format error:', error, date);

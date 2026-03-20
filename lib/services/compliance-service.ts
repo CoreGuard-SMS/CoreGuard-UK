@@ -91,21 +91,22 @@ export async function checkExpiringCertifications(organisationId: string, daysTh
   const flags: ComplianceFlagRecord[] = [];
   
   for (const record of data || []) {
-    const daysUntilExpiry = Math.ceil((new Date(record.expiry_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    const recordTyped = record as any; // Type assertion for Supabase result
+    const daysUntilExpiry = Math.ceil((new Date(recordTyped.expiry_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     
-    const existingFlag = await getComplianceFlagsByEmployee(record.employee_id);
+    const existingFlag = await getComplianceFlagsByEmployee(recordTyped.employee_id);
     const alreadyFlagged = existingFlag.some(flag => 
       flag.flagType === 'expiring_cert' && 
-      flag.description.includes(record.certification_name)
+      flag.description.includes(recordTyped.certification_name)
     );
     
     if (!alreadyFlagged) {
       const flag = await createComplianceFlag({
-        employeeId: record.employee_id,
-        employeeName: `${record.employees.first_name} ${record.employees.last_name}`,
+        employeeId: recordTyped.employee_id,
+        employeeName: `${recordTyped.employees.first_name} ${recordTyped.employees.last_name}`,
         flagType: 'expiring_cert',
         severity: daysUntilExpiry <= 7 ? 'high' : 'medium',
-        description: `${record.certification_name} expiring in ${daysUntilExpiry} days`,
+        description: `${recordTyped.certification_name} expiring in ${daysUntilExpiry} days`,
         resolved: false,
       });
       
@@ -186,17 +187,19 @@ export async function getComplianceScore(organisationId: string): Promise<number
       return 100; // No employees = perfect compliance
     }
     
+    const employeesTyped = employees as any[];
+    
     // Get total active training records
     const { data: trainingRecords, error: trainingError } = await supabaseAdmin
       .from('training_records')
       .select('employee_id, status, expiry_date')
-      .in('employee_id', employees.map(e => e.id));
+      .in('employee_id', employeesTyped.map(e => e.id as string));
     
     // Get total active licences
     const { data: licences, error: licenceError } = await supabaseAdmin
       .from('licences')
       .select('employee_id, status, expiry_date')
-      .in('employee_id', employees.map(e => e.id));
+      .in('employee_id', employeesTyped.map(e => e.id as string));
     
     // Get unresolved compliance flags
     const flags = await getComplianceFlags(false);
@@ -207,15 +210,15 @@ export async function getComplianceScore(organisationId: string): Promise<number
     // - Number of unresolved flags
     
     let totalScore = 100;
-    const totalEmployees = employees.length;
+    const totalEmployees = employeesTyped.length;
     
     // Deduct points for expired/expiring certifications
-    const expiredCerts = (trainingRecords || []).filter(record => 
+    const expiredCerts = (trainingRecords || []).filter((record: any) => 
       new Date(record.expiry_date) < new Date() || record.status !== 'active'
     ).length;
     
     // Deduct points for expired/expiring licences
-    const expiredLicences = (licences || []).filter(licence => 
+    const expiredLicences = (licences || []).filter((licence: any) => 
       new Date(licence.expiry_date) < new Date() || licence.status !== 'active'
     ).length;
     

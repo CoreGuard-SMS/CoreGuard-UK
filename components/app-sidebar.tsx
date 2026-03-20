@@ -133,9 +133,6 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
   const [loading, setLoading] = useState(false);
   const navItems = role === "company" ? companyNavItems : employeeNavItems;
 
-  // Debug: Log what user data is being passed
-  console.log("AppSidebar received user:", user);
-
   useEffect(() => {
     if (user?.id) {
       fetchOrganisation();
@@ -144,16 +141,13 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
 
   const fetchOrganisation = async () => {
     if (!user?.id) {
-      console.log("No user ID available for fetching organisation");
       return;
     }
     
     setLoading(true);
     try {
-      console.log("Fetching organisation for user ID:", user.id);
       const response = await fetch(`/api/organisation?userId=${user.id}`);
       const orgData = await response.json();
-      console.log("Fetched organisation data:", orgData);
       setOrganisation(orgData);
     } catch (error) {
       console.error("Error fetching organisation for sidebar:", error);

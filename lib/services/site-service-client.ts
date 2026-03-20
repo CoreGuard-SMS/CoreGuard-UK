@@ -28,7 +28,18 @@ export async function getSites(organisationId?: string): Promise<Site[]> {
     return [];
   }
   
-  return data || [];
+  // Map database fields to frontend format
+  return (data || []).map(site => ({
+    id: site.id,
+    organisationId: site.organisation_id,
+    name: site.name,
+    address: site.address,
+    contactName: site.contact_name,
+    contactPhone: site.contact_phone,
+    sitePin: site.site_pin,
+    requirements: site.requirements || { requiredTraining: [], requiredLicences: [] },
+    createdAt: new Date(site.created_at),
+  }));
 }
 
 export async function getSiteById(id: string): Promise<Site | null> {
@@ -43,14 +54,34 @@ export async function getSiteById(id: string): Promise<Site | null> {
     return null;
   }
   
-  return data;
+  if (data) {
+    return {
+      id: data.id,
+      organisationId: data.organisation_id,
+      name: data.name,
+      address: data.address,
+      contactName: data.contact_name,
+      contactPhone: data.contact_phone,
+      sitePin: data.site_pin,
+      requirements: data.requirements || { requiredTraining: [], requiredLicences: [] },
+      createdAt: new Date(data.created_at),
+    };
+  }
+  
+  return null;
 }
 
 export async function createSite(site: Omit<Site, 'id' | 'createdAt'>): Promise<Site | null> {
   const { data, error } = await supabase
     .from('sites')
     .insert({
-      ...site,
+      organisation_id: site.organisationId,
+      name: site.name,
+      address: site.address,
+      contact_name: site.contactName,
+      contact_phone: site.contactPhone,
+      site_pin: site.sitePin,
+      requirements: site.requirements,
       created_at: new Date().toISOString(),
     })
     .select()
@@ -61,7 +92,22 @@ export async function createSite(site: Omit<Site, 'id' | 'createdAt'>): Promise<
     return null;
   }
   
-  return data;
+  // Map database fields back to frontend format
+  if (data) {
+    return {
+      id: data.id,
+      organisationId: data.organisation_id,
+      name: data.name,
+      address: data.address,
+      contactName: data.contact_name,
+      contactPhone: data.contact_phone,
+      sitePin: data.site_pin,
+      requirements: data.requirements,
+      createdAt: new Date(data.created_at),
+    };
+  }
+  
+  return null;
 }
 
 export async function updateSite(id: string, updates: Partial<Site>): Promise<Site | null> {

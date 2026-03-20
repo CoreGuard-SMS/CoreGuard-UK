@@ -1,7 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { format, addDays, eachDayOfInterval, isSameDay, setHours, setMinutes } from "date-fns";
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'EEEE, MMMM d, yyyy':
+      return date.toLocaleDateString('en-GB', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    case 'EEEE, MMMM d':
+      return date.toLocaleDateString('en-GB', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
+const addDays = (date: Date, days: number) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+};
+const eachDayOfInterval = (start: Date, end: Date) => {
+  const days = [];
+  const current = new Date(start);
+  while (current <= end) {
+    days.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return days;
+};
+const isSameDay = (date1: Date, date2: Date) => 
+  date1.getFullYear() === date2.getFullYear() && 
+  date1.getMonth() === date2.getMonth() && 
+  date1.getDate() === date2.getDate();
+const setHours = (date: Date, hours: number) => {
+  const d = new Date(date);
+  d.setHours(hours, 0, 0, 0);
+  return d;
+};
+const setMinutes = (date: Date, minutes: number) => {
+  const d = new Date(date);
+  d.setMinutes(minutes);
+  return d;
+};
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";

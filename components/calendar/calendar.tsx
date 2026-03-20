@@ -6,7 +6,58 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Use
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, getDaysInMonth } from "date-fns";
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'MMMM yyyy':
+      return date.toLocaleDateString('en-GB', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    case 'd':
+      return date.getDate().toString();
+    case 'EEEE':
+      return date.toLocaleDateString('en-GB', { weekday: 'long' });
+    case 'HH:mm':
+      return date.toLocaleTimeString('en-GB', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
+const startOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
+const endOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
+const startOfWeek = (date: Date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+};
+const endOfWeek = (date: Date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? 0 : 7);
+  return new Date(d.setDate(diff));
+};
+const eachDayOfInterval = (start: Date, end: Date) => {
+  const days = [];
+  const current = new Date(start);
+  while (current <= end) {
+    days.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return days;
+};
+const isSameMonth = (date1: Date, date2: Date) => 
+  date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth();
+const isSameDay = (date1: Date, date2: Date) => 
+  date1.getFullYear() === date2.getFullYear() && 
+  date1.getMonth() === date2.getMonth() && 
+  date1.getDate() === date2.getDate();
+const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 import { generateCalendarDays, navigateCalendar, getWeekDays, getDayEvents, getEventTypeColor, formatEventTime } from "@/lib/services/calendar-service";
 
 interface CalendarProps {

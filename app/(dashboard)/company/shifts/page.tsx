@@ -11,7 +11,25 @@ import { useAuth } from "@/hooks/use-auth";
 import { getShifts } from "@/lib/services/shift-service-client";
 import { getShiftAssignments } from "@/lib/services/shift-service-client";
 import { getSites } from "@/lib/services/site-service-client";
-import { format, startOfMonth, endOfMonth, addMonths } from "date-fns";
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'MMMM yyyy':
+      return date.toLocaleDateString('en-GB', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
+const startOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
+const endOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
+const addMonths = (date: Date, months: number) => {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+};
 import ShiftCalendar from "@/components/calendar/shift-calendar";
 import MultiDayShiftCreator from "@/components/calendar/multi-day-shift-creator";
 import { Shift } from "@/types";

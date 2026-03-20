@@ -13,7 +13,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Mail, Phone, AlertCircle, Edit, Plus, Award, FileText, Upload } from "lucide-react";
 import { emailService } from "@/lib/email/resend";
 import { useState, useEffect, use } from "react";
-import { format } from "date-fns";
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'PPP':
+      return date.toLocaleDateString('en-GB', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
 
 export default function EmployeeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);

@@ -52,9 +52,9 @@ export default function SitesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sites & Rota Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Site Management Hub</h1>
           <p className="text-muted-foreground">
-            Manage your locations and schedule shifts for each site
+            Complete site-based operations including employees, shifts, templates, and assignments
           </p>
         </div>
         <Link href="/company/sites/create">
@@ -134,8 +134,8 @@ export default function SitesPage() {
 
                 <Link href={`/company/sites/${site.id}`}>
                   <Button className="w-full">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Manage Rota
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Manage Site
                   </Button>
                 </Link>
               </CardContent>

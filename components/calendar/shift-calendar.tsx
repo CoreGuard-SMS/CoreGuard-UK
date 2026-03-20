@@ -20,13 +20,40 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'week'>('month');
 
-  // Safe format function to avoid TDZ issues
+  // Native date formatting to avoid TDZ issues
   const safeFormat = (date: Date, formatStr: string): string => {
     try {
       if (!date || isNaN(date.getTime())) {
         return 'Invalid Date';
       }
-      return format(date, formatStr);
+      
+      // Use native formatting for common cases to avoid date-fns TDZ issues
+      switch (formatStr) {
+        case 'HH:mm':
+          return date.toLocaleTimeString('en-GB', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: false 
+          });
+        case 'd':
+          return date.getDate().toString();
+        case 'EEE':
+          return date.toLocaleDateString('en-GB', { weekday: 'short' });
+        case 'MMMM yyyy':
+          return date.toLocaleDateString('en-GB', { 
+            month: 'long', 
+            year: 'numeric' 
+          });
+        case 'HH:00':
+          return date.toLocaleTimeString('en-GB', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: false 
+          });
+        default:
+          // Fallback to date-fns for less critical formatting
+          return format(date, formatStr);
+      }
     } catch (error) {
       console.error('Format error:', error, date);
       return 'Format Error';
@@ -47,9 +74,20 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
           return null;
         }
         
+        // Simple time formatting without any libraries
+        const formatTime = (date: Date) => {
+          try {
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+          } catch (error) {
+            return '??';
+          }
+        };
+
         return {
           id: shift.id,
-          title: `${shift.siteName || 'Shift'} - ${safeFormat(startDate, 'HH:mm')}`,
+          title: `${shift.siteName || 'Shift'} - ${formatTime(startDate)}`,
           start: startDate,
           end: endDate,
           type: 'shift' as CalendarEventType,
@@ -205,7 +243,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
                 >
                   <div className="truncate font-medium">{event.title}</div>
                   <div className="text-xs opacity-75">
-                    {safeFormat(event.start, 'HH:mm')} - {safeFormat(event.end, 'HH:mm')}
+                    {event.start.getHours().toString().padStart(2, '0')}:{event.start.getMinutes().toString().padStart(2, '0')} - {event.end.getHours().toString().padStart(2, '0')}:{event.end.getMinutes().toString().padStart(2, '0')}
                   </div>
                 </div>
               ))}
@@ -275,7 +313,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
                       >
                         <div className="truncate font-medium">{event.title}</div>
                         <div className="text-xs opacity-75">
-                          {safeFormat(event.start, 'HH:mm')} - {safeFormat(event.end, 'HH:mm')}
+                          {event.start.getHours().toString().padStart(2, '0')}:{event.start.getMinutes().toString().padStart(2, '0')} - {event.end.getHours().toString().padStart(2, '0')}:{event.end.getMinutes().toString().padStart(2, '0')}
                         </div>
                       </div>
                     ))}

@@ -63,6 +63,25 @@ export async function createShift(shift: Omit<Shift, 'id' | 'createdAt'>): Promi
   return data;
 }
 
+export async function createMultipleShifts(shifts: Omit<Shift, 'id' | 'createdAt'>[]): Promise<Shift[]> {
+  const shiftsToInsert = shifts.map(shift => ({
+    ...shift,
+    created_at: new Date().toISOString(),
+  }));
+
+  const { data, error } = await supabase
+    .from('shifts')
+    .insert(shiftsToInsert)
+    .select();
+  
+  if (error) {
+    console.error('Error creating multiple shifts:', error);
+    return [];
+  }
+  
+  return data || [];
+}
+
 export async function updateShift(id: string, updates: Partial<Shift>): Promise<Shift | null> {
   const { data, error } = await supabase
     .from('shifts')

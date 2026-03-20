@@ -20,6 +20,19 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'week'>('month');
 
+  // Safe format function to avoid TDZ issues
+  const safeFormat = (date: Date, formatStr: string): string => {
+    try {
+      if (!date || isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      return format(date, formatStr);
+    } catch (error) {
+      console.error('Format error:', error, date);
+      return 'Format Error';
+    }
+  };
+
   // Convert shifts to calendar events
   const calendarEvents: CalendarEvent[] = shifts
     .filter(shift => shift && shift.startTime && shift.endTime)
@@ -36,7 +49,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
         
         return {
           id: shift.id,
-          title: `${shift.siteName || 'Shift'} - ${format(startDate, 'HH:mm')}`,
+          title: `${shift.siteName || 'Shift'} - ${safeFormat(startDate, 'HH:mm')}`,
           start: startDate,
           end: endDate,
           type: 'shift' as CalendarEventType,
@@ -83,7 +96,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <h2 className="text-xl font-semibold">
-          {format(currentMonth, 'MMMM yyyy')}
+          {safeFormat(currentMonth, 'MMMM yyyy')}
         </h2>
         <Button
           variant="outline"
@@ -140,7 +153,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
 
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
-        const formattedDate = format(day, 'd');
+        const formattedDate = safeFormat(day, 'd');
         const cloneDay = day;
         const events = getEventsForDate(day);
         const isCurrentMonth = isSameMonth(day, currentMonth);
@@ -192,7 +205,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
                 >
                   <div className="truncate font-medium">{event.title}</div>
                   <div className="text-xs opacity-75">
-                    {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+                    {safeFormat(event.start, 'HH:mm')} - {safeFormat(event.end, 'HH:mm')}
                   </div>
                 </div>
               ))}
@@ -231,10 +244,10 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
           {weekDays.map(day => (
             <div key={day.toString()} className="text-center">
               <div className="text-sm font-medium">
-                {format(day, 'EEE')}
+                {safeFormat(day, 'EEE')}
               </div>
               <div className={`text-lg ${isToday(day) ? 'text-primary font-bold' : ''}`}>
-                {format(day, 'd')}
+                {safeFormat(day, 'd')}
               </div>
             </div>
           ))}
@@ -244,7 +257,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
           {Array.from({ length: 24 }, (_, hour) => (
             <div key={hour} className="grid grid-cols-8 gap-2">
               <div className="text-sm text-muted-foreground py-2">
-                {format(setHours(new Date(), hour), 'HH:00')}
+                {safeFormat(setHours(new Date(), hour), 'HH:00')}
               </div>
               {weekDays.map(day => {
                 const events = getEventsForDate(day).filter(event => 
@@ -262,7 +275,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
                       >
                         <div className="truncate font-medium">{event.title}</div>
                         <div className="text-xs opacity-75">
-                          {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+                          {safeFormat(event.start, 'HH:mm')} - {safeFormat(event.end, 'HH:mm')}
                         </div>
                       </div>
                     ))}

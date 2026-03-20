@@ -5,7 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, MapPin, Users, CheckCircle } from "lucide-react";
 import { getShiftById, getShiftAssignments } from "@/lib/services/shift-service-client";
-import { format } from "date-fns";
+
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'PPP':
+      return date.toLocaleDateString('en-GB', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    case 'p':
+      return date.toLocaleTimeString('en-GB', { 
+        hour: 'numeric', 
+        minute: '2-digit' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
 
 export default function ShiftDetailPage({ params }: { params: { shiftId: string } }) {
   const shift = {

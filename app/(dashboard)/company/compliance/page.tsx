@@ -4,7 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertTriangle, CheckCircle, Clock, XCircle } from "lucide-react";
 import { getComplianceFlags, getExpiringCertifications, getExpiringLicences, getComplianceScore } from "@/lib/services/compliance-service";
-import { format, differenceInDays } from "date-fns";
+
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'MMM dd, yyyy':
+      return date.toLocaleDateString('en-GB', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    case 'MMM dd':
+      return date.toLocaleDateString('en-GB', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
+
+const differenceInDays = (dateLeft: Date, dateRight: Date) => {
+  const diffTime = Math.abs(dateLeft.getTime() - dateRight.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
 
 export default function CompliancePage() {
   const activeFlags: any[] = []; // Mock data for now

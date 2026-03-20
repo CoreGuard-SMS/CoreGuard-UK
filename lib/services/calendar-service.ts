@@ -1,7 +1,81 @@
 import { CalendarEvent, CalendarDay, CalendarView, Shift, CalendarEventType } from '@/types';
 import { getShifts } from './shift-service';
 import { getEmployeeShifts } from './shift-service';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays } from 'date-fns';
+
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'HH:mm':
+      return date.toLocaleTimeString('en-GB', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
+
+const startOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
+const endOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
+const startOfWeek = (date: Date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+};
+const endOfWeek = (date: Date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? 0 : 7);
+  return new Date(d.setDate(diff));
+};
+const eachDayOfInterval = (interval: { start: Date; end: Date }) => {
+  const days = [];
+  const current = new Date(interval.start);
+  while (current <= interval.end) {
+    days.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return days;
+};
+const isSameMonth = (date1: Date, date2: Date) => 
+  date1.getFullYear() === date2.getFullYear() && 
+  date1.getMonth() === date2.getMonth();
+const isSameDay = (date1: Date, date2: Date) => 
+  date1.getFullYear() === date2.getFullYear() && 
+  date1.getMonth() === date2.getMonth() && 
+  date1.getDate() === date2.getDate();
+const addMonths = (date: Date, months: number) => {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+};
+const subMonths = (date: Date, months: number) => {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() - months);
+  return d;
+};
+const addWeeks = (date: Date, weeks: number) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + (weeks * 7));
+  return d;
+};
+const subWeeks = (date: Date, weeks: number) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() - (weeks * 7));
+  return d;
+};
+const addDays = (date: Date, days: number) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+};
+const subDays = (date: Date, days: number) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() - days);
+  return d;
+};
 
 export async function getCalendarEvents(
   organisationId?: string,

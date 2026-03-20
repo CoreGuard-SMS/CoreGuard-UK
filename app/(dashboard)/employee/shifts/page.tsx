@@ -5,7 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { getEmployeeShifts } from "@/lib/services/shift-service-client";
-import { format, isFuture, isPast } from "date-fns";
+
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'PPP':
+      return date.toLocaleDateString('en-GB', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    case 'p':
+      return date.toLocaleTimeString('en-GB', { 
+        hour: 'numeric', 
+        minute: '2-digit' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
+
+const isFuture = (date: Date) => date > new Date();
+const isPast = (date: Date) => date < new Date();
 
 export default function EmployeeShiftsPage() {
   const employeeId = "emp-1";

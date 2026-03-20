@@ -8,7 +8,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Phone, AlertCircle, Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { format } from "date-fns";
+
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'MMM dd, yyyy':
+      return date.toLocaleDateString('en-GB', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
 
 export default function EmployeeProfilePage() {
   const { user } = useAuth();

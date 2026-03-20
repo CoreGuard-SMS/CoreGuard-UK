@@ -12,7 +12,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Trash2, Download, Upload } from "lucide-react";
-import { format } from "date-fns";
+
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'PPP':
+      return date.toLocaleDateString('en-GB', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    case 'yyyy-MM-dd':
+      return date.toISOString().split('T')[0];
+    case 'HH:mm':
+      return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    default:
+      return date.toLocaleString();
+  }
+};
+
 import type { IncidentType, PersonInvolved } from "@/types/forms";
 
 export default function IncidentReportPage() {

@@ -7,7 +7,33 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { getEmployeeShifts } from "@/lib/actions/shift";
-import { format, isFuture, isToday } from "date-fns";
+
+// Native date utilities to avoid TDZ issues
+const format = (date: Date, formatStr: string) => {
+  switch (formatStr) {
+    case 'PPP':
+      return date.toLocaleDateString('en-GB', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    case 'p':
+      return date.toLocaleTimeString('en-GB', { 
+        hour: 'numeric', 
+        minute: '2-digit' 
+      });
+    default:
+      return date.toLocaleString();
+  }
+};
+
+const isFuture = (date: Date) => date > new Date();
+const isToday = (date: Date) => {
+  const today = new Date();
+  return date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear();
+};
 
 export default function EmployeeDashboardPage() {
   const [shifts, setShifts] = useState<any[]>([]);

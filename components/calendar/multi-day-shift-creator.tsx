@@ -107,7 +107,7 @@ export default function MultiDayShiftCreator({
     daysOfWeek: [] as number[]
   });
 
-  const daysInRange = eachDayOfInterval({ start: startDate, end: endDate });
+  const daysInRange = eachDayOfInterval(startDate, endDate);
 
   const toggleDay = (day: Date) => {
     setSelectedDays(prev => {

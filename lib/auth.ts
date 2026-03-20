@@ -3,7 +3,7 @@ import { betterAuth } from "better-auth";
 export const auth = betterAuth({
   database: {
     provider: "postgres",
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL + "/pgrest",
+    url: process.env.DATABASE_URL,
   },
   emailAndPassword: {
     enabled: true,

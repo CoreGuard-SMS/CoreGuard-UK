@@ -345,7 +345,7 @@ export default function ShiftCalendar({ shifts, sites, onDateSelect, onShiftClic
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-8 gap-2">
-          <div className="text-sm font-medium text-muted-foreground">Time</div>
+          <div className="text-sm font-medium text-muted-foreground">Day</div>
           {weekDays.map(day => (
             <div key={day.toString()} className="text-center">
               <div className="text-sm font-medium">
@@ -358,37 +358,56 @@ export default function ShiftCalendar({ shifts, sites, onDateSelect, onShiftClic
           ))}
         </div>
 
-        <div className="space-y-1">
-          {Array.from({ length: 24 }, (_, hour) => (
-            <div key={hour} className="grid grid-cols-8 gap-2">
-              <div className="text-sm text-muted-foreground py-2">
-                {safeFormat(setHours(new Date(), hour), 'HH:00')}
-              </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[1200px]">
+            {/* Time header row */}
+            <div className="grid grid-cols-25 gap-1 mb-2">
+              <div className="col-span-1"></div>
+              {Array.from({ length: 24 }, (_, hour) => (
+                <div key={`time-${hour}`} className="text-center text-xs font-medium text-muted-foreground p-1 border-b">
+                  {safeFormat(setHours(new Date(), hour), 'HH:00')}
+                </div>
+              ))}
+            </div>
+            
+            {/* Day rows */}
+            <div className="space-y-1">
               {weekDays.map(day => {
-                const events = getEventsForDate(day).filter(event => 
-                  event.start.getHours() === hour
-                );
+                const dayEvents = getEventsForDate(day);
                 
                 return (
-                  <div key={`${day.toString()}-${hour}`} className="border rounded p-1 min-h-[60px]">
-                    {events.map(event => (
-                      <div
-                        key={event.id}
-                        className="text-xs p-1 rounded mb-1 cursor-pointer hover:opacity-80"
-                        style={{ backgroundColor: event.color + '20', borderLeft: `2px solid ${event.color}` }}
-                        onClick={() => onShiftClick(event.data as Shift)}
-                      >
-                        <div className="truncate font-medium">{event.title}</div>
-                        <div className="text-xs opacity-75">
-                          {event.start.getHours().toString().padStart(2, '0')}:{event.start.getMinutes().toString().padStart(2, '0')} - {event.end.getHours().toString().padStart(2, '0')}:{event.end.getMinutes().toString().padStart(2, '0')}
-                        </div>
+                  <div key={day.toString()} className="grid grid-cols-25 gap-1">
+                    <div className="text-sm font-medium text-muted-foreground p-2 border-r">
+                      {safeFormat(day, 'EEE')}
+                      <div className={`text-lg ${isToday(day) ? 'text-primary font-bold' : ''}`}>
+                        {safeFormat(day, 'd')}
                       </div>
-                    ))}
+                    </div>
+                    {Array.from({ length: 24 }, (_, hour) => {
+                      const hourEvents = dayEvents.filter(event => 
+                        event.start.getHours() === hour
+                      );
+                      
+                      return (
+                        <div key={`${day.toString()}-${hour}`} className="border rounded p-1 min-h-[40px]">
+                          {hourEvents.map(event => (
+                            <div
+                              key={event.id}
+                              className="text-xs p-1 rounded mb-1 cursor-pointer hover:opacity-80"
+                              style={{ backgroundColor: event.color + '20', borderLeft: `2px solid ${event.color}` }}
+                              onClick={() => onShiftClick(event.data as Shift)}
+                            >
+                              <div className="truncate font-medium">{event.title}</div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     );

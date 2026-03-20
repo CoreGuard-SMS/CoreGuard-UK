@@ -1,26 +1,106 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar, Clock, MapPin, List } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import { getEmployeeShifts } from "@/lib/services/shift-service";
+import { getCalendarEvents } from "@/lib/services/calendar-service";
 import { format, isFuture, isPast } from "date-fns";
+import CalendarComponent from "@/components/calendar/calendar";
+import { CalendarEvent } from "@/types";
 
 export default function EmployeeShiftsPage() {
-  const employeeId = "emp-1";
-  const allShifts: any[] = []; // Mock data for now
-  const upcomingShifts = allShifts.filter((s: any) => isFuture(s.startTime));
-  const pastShifts = allShifts.filter((s: any) => isPast(s.endTime));
+  const { user } = useAuth();
+  const [allShifts, setAllShifts] = useState<any[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"list" | "calendar">("calendar");
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchShifts();
+      fetchCalendarEvents();
+    }
+  }, [user]);
+
+  const fetchShifts = async () => {
+    try {
+      const shifts = await getEmployeeShifts(user.id);
+      setAllShifts(shifts);
+    } catch (error) {
+      console.error("Error fetching employee shifts:", error);
+    }
+  };
+
+  const fetchCalendarEvents = async () => {
+    try {
+      const events = await getCalendarEvents(undefined, user.id);
+      setCalendarEvents(events);
+    } catch (error) {
+      console.error("Error fetching calendar events:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const upcomingShifts = allShifts.filter((s: any) => isFuture(new Date(s.shifts?.start_time || s.startTime)));
+  const pastShifts = allShifts.filter((s: any) => isPast(new Date(s.shifts?.end_time || s.endTime)));
+
+  const handleEventClick = (event: CalendarEvent) => {
+    console.log('Event clicked:', event);
+  };
+
+  const handleDateClick = (date: Date) => {
+    console.log('Date clicked:', date);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-muted-foreground">Loading shifts...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Shifts</h1>
-        <p className="text-muted-foreground">
-          View your shift schedule and history
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">My Shifts</h1>
+          <p className="text-muted-foreground">
+            View your shift schedule and history
+          </p>
+        </div>
+        <div className="flex bg-muted rounded-lg p-1">
+          <Button
+            variant={view === "list" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setView("list")}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={view === "calendar" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setView("calendar")}
+          >
+            <Calendar className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+
+      {view === "calendar" ? (
+        <CalendarComponent
+          events={calendarEvents}
+          onEventClick={handleEventClick}
+          onDateClick={handleDateClick}
+        />
+      ) : (
 
       <Tabs defaultValue="upcoming" className="space-y-4">
         <TabsList>
@@ -129,6 +209,7 @@ export default function EmployeeShiftsPage() {
           </div>
         </TabsContent>
       </Tabs>
+      )}
     </div>
   );
 }

@@ -6,6 +6,10 @@ export type EmployeeStatus = 'active' | 'inactive' | 'suspended';
 
 export type ComplianceFlag = 'expiring_cert' | 'missing_training' | 'access_violation' | 'other';
 
+export type CalendarView = 'month' | 'week' | 'day' | 'agenda';
+
+export type CalendarEventType = 'shift' | 'training' | 'holiday' | 'unavailable';
+
 export interface Organisation {
   id: string;
   name: string;
@@ -113,6 +117,40 @@ export interface Shift {
   status: ShiftStatus;
   createdBy: string;
   createdAt: Date;
+  // Calendar-specific properties
+  color?: string;
+  allDay?: boolean;
+  recurring?: {
+    pattern: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    interval: number;
+    endDate?: Date;
+    daysOfWeek?: number[];
+  };
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  type: CalendarEventType;
+  color?: string;
+  allDay?: boolean;
+  recurring?: {
+    pattern: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    interval: number;
+    endDate?: Date;
+    daysOfWeek?: number[];
+  };
+  data?: any; // Additional data for different event types
+}
+
+export interface CalendarDay {
+  date: Date;
+  events: CalendarEvent[];
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isSelected: boolean;
 }
 
 export interface ShiftAssignment {

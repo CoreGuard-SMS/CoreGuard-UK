@@ -10,6 +10,7 @@ import { ArrowLeft, MapPin, Phone, Mail, Users, Calendar, Clock, Edit, Plus } fr
 import { useAuth } from "@/hooks/use-auth";
 import ShiftCalendar from "@/components/calendar/shift-calendar";
 import MultiDayShiftCreator from "@/components/calendar/multi-day-shift-creator";
+import SiteEditModal from "@/components/sites/site-edit-modal";
 
 export default function SiteDetailPage() {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ export default function SiteDetailPage() {
   const [showMultiDayCreator, setShowMultiDayCreator] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (user?.organisationId && siteId) {
@@ -183,6 +185,21 @@ export default function SiteDetailPage() {
     }
   };
 
+  const handleEditSite = () => {
+    setShowEditModal(true);
+  };
+
+  const handleSiteUpdate = (updatedSite: any) => {
+    setSite(updatedSite);
+    // Update sites list as well
+    setSites(prev => prev.map(s => s.id === updatedSite.id ? updatedSite : s));
+  };
+
+  const handleSiteDelete = (deletedSiteId: string) => {
+    // Redirect back to sites page after deletion
+    router.push('/company/sites');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return '#3b82f6';
@@ -234,7 +251,7 @@ export default function SiteDetailPage() {
             </p>
           </div>
         </div>
-        <Button>
+        <Button onClick={handleEditSite}>
           <Edit className="mr-2 h-4 w-4" />
           Edit Site
         </Button>
@@ -604,6 +621,17 @@ export default function SiteDetailPage() {
           user={user}
           onCreateShifts={handleCreateMultiDayShifts}
           onCancel={() => setShowMultiDayCreator(false)}
+        />
+      )}
+
+      {/* Site Edit Modal */}
+      {showEditModal && (
+        <SiteEditModal
+          site={site}
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onUpdate={handleSiteUpdate}
+          onDelete={handleSiteDelete}
         />
       )}
     </div>

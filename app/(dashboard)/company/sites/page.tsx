@@ -5,14 +5,34 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Plus, Users, Calendar } from "lucide-react";
+import { MapPin, Plus, Users, Calendar, Edit } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import SiteEditModal from "@/components/sites/site-edit-modal";
 
 export default function SitesPage() {
   const { user } = useAuth();
   const [sites, setSites] = useState<any[]>([]);
   const [siteShifts, setSiteShifts] = useState<{ [key: string]: any[] }>({});
   const [loading, setLoading] = useState(true);
+  const [selectedSite, setSelectedSite] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleEditSite = (site: any) => {
+    setSelectedSite(site);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSiteUpdate = (updatedSite: any) => {
+    setSites(prev => prev.map(s => s.id === updatedSite.id ? updatedSite : s));
+    setIsEditModalOpen(false);
+    setSelectedSite(null);
+  };
+
+  const handleSiteDelete = (deletedSiteId: string) => {
+    setSites(prev => prev.filter(s => s.id !== deletedSiteId));
+    setIsEditModalOpen(false);
+    setSelectedSite(null);
+  };
 
   useEffect(() => {
     const fetchSites = async () => {
@@ -132,16 +152,39 @@ export default function SitesPage() {
                   </div>
                 </div>
 
-                <Link href={`/company/sites/${site.id}`}>
-                  <Button className="w-full">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    Manage Site
+                <div className="flex gap-2">
+                  <Link href={`/company/sites/${site.id}`}>
+                    <Button variant="outline" className="flex-1">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Manage
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleEditSite(site)}
+                  >
+                    <Edit className="h-4 w-4" />
                   </Button>
-                </Link>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Site Edit Modal */}
+      {isEditModalOpen && selectedSite && (
+        <SiteEditModal
+          site={selectedSite}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedSite(null);
+          }}
+          onUpdate={handleSiteUpdate}
+          onDelete={handleSiteDelete}
+        />
       )}
     </div>
   );

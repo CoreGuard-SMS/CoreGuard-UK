@@ -177,51 +177,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create initial sites for the organisation
-    const defaultSites = [
-      { 
-        name: "Main Office", 
-        address: "Company Headquarters", 
-        contact_name: body.adminName,
-        contact_phone: "+44 20 1234 5678",
-        site_pin: "111111" 
-      },
-      { 
-        name: "Site A", 
-        address: "Primary Location", 
-        contact_name: body.adminName,
-        contact_phone: "+44 20 1234 5678",
-        site_pin: "222222" 
-      },
-      { 
-        name: "Site B", 
-        address: "Secondary Location", 
-        contact_name: body.adminName,
-        contact_phone: "+44 20 1234 5678",
-        site_pin: "333333" 
-      },
-    ];
-
-    const { error: sitesError } = await supabase
-      .from("sites")
-      .insert(
-        defaultSites.map((site) => ({
-          organisation_id: organisation.id,
-          name: site.name,
-          address: site.address,
-          contact_name: site.contact_name,
-          contact_phone: site.contact_phone,
-          site_pin: site.site_pin,
-          requirements: JSON.stringify([]), // Empty requirements array
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }))
-      );
-
-    if (sitesError) {
-      console.error("Sites creation error:", sitesError);
-      // Don't fail the whole operation, just log it
-    }
+    // Note: No automatic site creation - companies will create their own sites
+    // This allows companies to set up their actual sites with real information
 
     // Send company creation email
     try {

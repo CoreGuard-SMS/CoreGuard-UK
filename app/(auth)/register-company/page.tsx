@@ -77,7 +77,7 @@ export default function RegisterCompanyPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Company Created!</CardTitle>
           <CardDescription>
-            Your organisation has been successfully created and added to the database.
+            Your organisation has been successfully created. Now you can add your actual sites.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

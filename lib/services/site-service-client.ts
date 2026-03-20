@@ -15,60 +15,58 @@ export function resetSitePinCounter(): void {
 }
 
 export async function getSites(organisationId?: string): Promise<Site[]> {
-  let query = supabase.from('sites').select('*');
-  
-  if (organisationId) {
-    query = query.eq('organisation_id', organisationId);
-  }
-  
-  const { data, error } = await query.order('name', { ascending: true });
-  
-  if (error) {
+  try {
+    const url = organisationId ? `/api/sites?organisationId=${organisationId}` : '/api/sites';
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Error fetching sites:', response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    
+    // Map database fields to frontend format
+    return (data || []).map((site: any) => ({
+      id: site.id,
+      organisationId: site.organisation_id,
+      name: site.name,
+      address: site.address,
+      contactName: site.contact_name,
+      contactPhone: site.contact_phone,
+      sitePin: site.site_pin,
+      requirements: site.requirements || { requiredTraining: [], requiredLicences: [] },
+      createdAt: new Date(site.created_at),
+    }));
+  } catch (error) {
     console.error('Error fetching sites:', error);
     return [];
   }
-  
-  // Map database fields to frontend format
-  return (data || []).map(site => ({
-    id: site.id,
-    organisationId: site.organisation_id,
-    name: site.name,
-    address: site.address,
-    contactName: site.contact_name,
-    contactPhone: site.contact_phone,
-    sitePin: site.site_pin,
-    requirements: site.requirements || { requiredTraining: [], requiredLicences: [] },
-    createdAt: new Date(site.created_at),
-  }));
 }
 
 export async function getSiteById(id: string): Promise<Site | null> {
-  const { data, error } = await supabase
-    .from('sites')
-    .select('*')
-    .eq('id', id)
-    .single();
-  
-  if (error) {
+  try {
+    const response = await fetch(`/api/sites?id=${id}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      console.error('Error fetching site:', response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    // Convert created_at string to Date object
+    return {
+      ...data,
+      createdAt: new Date(data.createdAt),
+    };
+  } catch (error) {
     console.error('Error fetching site:', error);
     return null;
   }
-  
-  if (data) {
-    return {
-      id: data.id,
-      organisationId: data.organisation_id,
-      name: data.name,
-      address: data.address,
-      contactName: data.contact_name,
-      contactPhone: data.contact_phone,
-      sitePin: data.site_pin,
-      requirements: data.requirements || { requiredTraining: [], requiredLicences: [] },
-      createdAt: new Date(data.created_at),
-    };
-  }
-  
-  return null;
 }
 
 export async function createSite(site: Omit<Site, 'id' | 'createdAt'>): Promise<Site | null> {

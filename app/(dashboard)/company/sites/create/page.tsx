@@ -74,9 +74,11 @@ export default function CreateSitePage() {
       const result = await createSite(siteData);
       
       if (result) {
+        console.log("Site created successfully:", result);
         router.push("/company/sites");
       } else {
-        console.error("Failed to create site");
+        console.error("Failed to create site - no result returned");
+        // You could add a toast notification here
       }
     } catch (error) {
       console.error("Error creating site:", error);

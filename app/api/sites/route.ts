@@ -10,7 +10,48 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const organisationId = searchParams.get('organisationId');
+    const siteId = searchParams.get('id');
 
+    // If siteId is provided, get single site
+    if (siteId) {
+      const { data: site, error } = await supabase
+        .from("sites")
+        .select("*")
+        .eq("id", siteId)
+        .single();
+
+      if (error) {
+        console.error("Site API error:", error);
+        return NextResponse.json(
+          { error: `Database error: ${error.message}` },
+          { status: 500 }
+        );
+      }
+
+      if (!site) {
+        return NextResponse.json(
+          { error: "Site not found" },
+          { status: 404 }
+        );
+      }
+
+      // Map database fields to frontend format
+      const responseSite = {
+        id: site.id,
+        organisationId: site.organisation_id,
+        name: site.name,
+        address: site.address,
+        contactName: site.contact_name,
+        contactPhone: site.contact_phone,
+        sitePin: site.site_pin,
+        requirements: site.requirements || { requiredTraining: [], requiredLicences: [] },
+        createdAt: site.created_at,
+      };
+
+      return NextResponse.json(responseSite);
+    }
+
+    // Otherwise, require organisationId and get all sites
     if (!organisationId) {
       return NextResponse.json(
         { error: "Organisation ID is required" },

@@ -54,9 +54,8 @@ export default function SiteEditModal({ site, isOpen, onClose, onUpdate, onDelet
       const updatedSite = await updateSite(site.id, {
         name: formData.name,
         address: formData.address,
-        contact_name: formData.contactName,
-        contact_phone: formData.contactPhone,
-        status: formData.status,
+        contactName: formData.contactName,
+        contactPhone: formData.contactPhone,
       });
 
       if (updatedSite) {

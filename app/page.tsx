@@ -116,12 +116,12 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <img 
-                src="https://iili.io/q76YPsf.png" 
+                src="/logos/company-logo-light.png" 
                 alt="CoreGuard SMS Logo" 
                 className="h-12 w-auto object-contain dark:hidden"
               />
               <img 
-                src="https://iili.io/q76sBKg.png" 
+                src="/logos/company-logo-dark.png" 
                 alt="CoreGuard SMS Logo" 
                 className="h-12 w-auto object-contain hidden dark:block"
               />
@@ -180,16 +180,14 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2">
                   <img 
-                    src="/logos/company-logo.png" 
+                    src="/logos/company-logo-light.png" 
                     alt="CoreGuard SMS Logo"
-                    className="h-5 w-5 object-contain"
-                    onError={(e) => {
-                      // Fallback to shield if logo fails to load
-                      e.currentTarget.style.display = 'none';
-                      const fallback = document.createElement('div');
-                      fallback.innerHTML = '<svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>';
-                      e.currentTarget.parentNode?.insertBefore(fallback, e.currentTarget.nextSibling);
-                    }}
+                    className="h-5 w-5 object-contain dark:hidden"
+                  />
+                  <img 
+                    src="/logos/company-logo-dark.png" 
+                    alt="CoreGuard SMS Logo"
+                    className="h-5 w-5 object-contain hidden dark:block"
                   />
                   <span className="text-sm text-muted-foreground">Enterprise security</span>
                 </div>
@@ -282,16 +280,14 @@ export default function Home() {
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg overflow-hidden">
                       <img 
-                        src="/logos/company-logo.png" 
+                        src="/logos/company-logo-light.png" 
                         alt="CoreGuard SMS Logo"
-                        className="w-full h-full object-contain p-2"
-                        onError={(e) => {
-                          // Fallback to shield if logo fails to load
-                          e.currentTarget.style.display = 'none';
-                          const fallback = document.createElement('div');
-                          fallback.innerHTML = '<svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>';
-                          e.currentTarget.parentNode?.appendChild(fallback);
-                        }}
+                        className="w-full h-full object-contain p-2 dark:hidden"
+                      />
+                      <img 
+                        src="/logos/company-logo-dark.png" 
+                        alt="CoreGuard SMS Logo"
+                        className="w-full h-full object-contain p-2 hidden dark:block"
                       />
                     </div>
                     <div>

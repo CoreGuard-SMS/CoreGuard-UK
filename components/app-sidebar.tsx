@@ -169,13 +169,26 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
               <img 
-                src={role === "company" ? "/logos/company-logo.png" : "/logos/employee-logo.png"} 
-                alt="CoreGuard SMS Logo"
-                className="w-full h-full object-cover"
+                src="/logos/company-logo-light.png" 
+                alt="CoreGuard SMS Logo" 
+                className="w-full h-full object-contain dark:hidden"
                 onError={(e) => {
                   // Fallback to shield if logo fails to load
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <img 
+                src="/logos/company-logo-dark.png" 
+                alt="CoreGuard SMS Logo" 
+                className="w-full h-full object-contain hidden dark:block"
+                onError={(e) => {
+                  // Fallback to shield if logo fails to load
+                  e.currentTarget.style.display = 'none';
+                  const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (nextElement && nextElement.classList.contains('hidden')) {
+                    nextElement.classList.remove('hidden');
+                  }
                 }}
               />
               <Shield className="w-5 h-5 text-primary-foreground hidden" />

@@ -2,9 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1:*"],
-  experimental: {
-    serverComponentsExternalPackages: ['electron']
-  },
+  serverExternalPackages: ['electron'],
+  turbopack: {},
   webpack: (config, { isServer }) => {
     // Exclude electron from the build
     config.externals = config.externals || [];

@@ -16,6 +16,11 @@ name = "app"
 NODE_ENV = "production"
 PORT = "3000"
 
+[services.web]
+[services.web.healthcheck]
+path = "/api/health"
+port = 3000
+
 [nixpacks]
 node_version = "20"
 
@@ -36,9 +41,3 @@ RESEND_API_KEY = "${{RESEND_API_KEY}}"
 # Better Auth Configuration
 BETTER_AUTH_SECRET = "${{BETTER_AUTH_SECRET}}"
 BETTER_AUTH_URL = "${{PUBLIC_URL}}"
-
-[services]
-[services.web]
-[services.web.healthcheck]
-path = "/api/health"
-port = 3000

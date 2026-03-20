@@ -219,6 +219,7 @@ export default function ShiftsPage() {
           ) : (
             <ShiftCalendar
               shifts={shifts}
+              sites={sites}
               onDateSelect={handleDateSelect}
               onShiftClick={handleShiftClick}
               onCreateShift={handleCreateShift}

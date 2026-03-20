@@ -47,20 +47,23 @@ const setMinutes = (date: Date, minutes: number) => {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, Clock, MapPin, Users } from "lucide-react";
 import { Shift, CalendarEvent, CalendarEventType } from "@/types";
 
 interface ShiftCalendarProps {
   shifts: Shift[];
+  sites: any[];
   onDateSelect: (date: Date) => void;
   onShiftClick: (shift: Shift) => void;
   onCreateShift: (date: Date) => void;
 }
 
-export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCreateShift }: ShiftCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+export default function ShiftCalendar({ shifts, sites, onDateSelect, onShiftClick, onCreateShift }: ShiftCalendarProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date(new Date().getFullYear(), 0, 1));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [view, setView] = useState<'month' | 'week'>('month');
+  const [view, setView] = useState<'month' | 'week' | 'year'>('year');
+  const [selectedSite, setSelectedSite] = useState<string>('all');
 
   // Native date formatting to avoid TDZ issues
   const safeFormat = (date: Date, formatStr: string): string => {
@@ -105,6 +108,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
   // Convert shifts to calendar events
   const calendarEvents: CalendarEvent[] = shifts
     .filter(shift => shift && shift.startTime && shift.endTime)
+    .filter(shift => selectedSite === 'all' || shift.siteId === selectedSite)
     .map(shift => {
       try {
         const startDate = new Date(shift.startTime);
@@ -176,7 +180,7 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <h2 className="text-xl font-semibold">
-          {safeFormat(currentMonth, 'MMMM yyyy')}
+          {view === 'year' ? currentMonth.getFullYear() : safeFormat(currentMonth, 'MMMM yyyy')}
         </h2>
         <Button
           variant="outline"
@@ -188,6 +192,27 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
       </div>
       
       <div className="flex items-center gap-2">
+        <Select value={selectedSite} onValueChange={(value) => setSelectedSite(value || 'all')}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select site" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sites</SelectItem>
+            {sites.map((site) => (
+              <SelectItem key={site.id} value={site.id}>
+                {site.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
+        <Button
+          variant={view === 'year' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setView('year')}
+        >
+          Year
+        </Button>
         <Button
           variant={view === 'month' ? 'default' : 'outline'}
           size="sm"
@@ -369,6 +394,61 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
     );
   };
 
+  const renderYearView = () => {
+    const months = [];
+    const year = currentMonth.getFullYear();
+    
+    for (let month = 0; month < 12; month++) {
+      const monthDate = new Date(year, month, 1);
+      months.push(monthDate);
+    }
+
+    return (
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+        {months.map(monthDate => {
+          const monthEvents = calendarEvents.filter(event => 
+            event.start.getMonth() === monthDate.getMonth() && 
+            event.start.getFullYear() === year
+          );
+          
+          return (
+            <Card key={monthDate.toString()} className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {safeFormat(monthDate, 'MMMM')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="text-xs text-muted-foreground mb-2">
+                  {monthEvents.length} shift{monthEvents.length !== 1 ? 's' : ''}
+                </div>
+                <div className="space-y-1">
+                  {monthEvents.slice(0, 3).map(event => (
+                    <div 
+                      key={event.id}
+                      className="text-xs p-1 rounded"
+                      style={{ backgroundColor: event.color + '20' }}
+                    >
+                      <div className="truncate font-medium">{event.title}</div>
+                      <div className="text-xs opacity-75">
+                        {event.start.getDate()}/{event.start.getMonth() + 1}
+                      </div>
+                    </div>
+                  ))}
+                  {monthEvents.length > 3 && (
+                    <div className="text-xs text-muted-foreground text-center">
+                      +{monthEvents.length - 3} more
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -379,7 +459,9 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
       </CardHeader>
       <CardContent>
         {renderHeader()}
-        {view === 'month' ? (
+        {view === 'year' ? (
+          renderYearView()
+        ) : view === 'month' ? (
           <>
             {renderDays()}
             {renderCells()}

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, MapPin, Users, CheckCircle } from "lucide-react";
-import { getShiftById, getShiftAssignments } from "@/lib/services/shift-service";
+import { getShiftById, getShiftAssignments } from "@/lib/services/shift-service-client";
 import { format } from "date-fns";
 
 export default function ShiftDetailPage({ params }: { params: { shiftId: string } }) {

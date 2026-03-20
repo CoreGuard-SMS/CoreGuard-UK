@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Plus, MapPin, Clock, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getShifts } from "@/lib/services/shift-service";
-import { getShiftAssignments } from "@/lib/services/shift-service";
+import { getShifts } from "@/lib/services/shift-service-client";
+import { getShiftAssignments } from "@/lib/services/shift-service-client";
 import { format } from "date-fns";
 
 export default function ShiftsPage() {

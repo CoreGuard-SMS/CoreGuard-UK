@@ -17,8 +17,8 @@ export default function SitesPage() {
     const fetchSites = async () => {
       if (user?.organisationId) {
         try {
-          const response = await fetch(`/api/sites?organisationId=${user.organisationId}`);
-          const sitesData = await response.json();
+          const { getSites } = await import("@/lib/services/site-service-client");
+          const sitesData = await getSites(user.organisationId);
           setSites(sitesData);
         } catch (error) {
           console.error("Error fetching sites:", error);

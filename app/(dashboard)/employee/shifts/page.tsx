@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, MapPin } from "lucide-react";
-import { getEmployeeShifts } from "@/lib/services/shift-service";
+import { getEmployeeShifts } from "@/lib/services/shift-service-client";
 import { format, isFuture, isPast } from "date-fns";
 
 export default function EmployeeShiftsPage() {

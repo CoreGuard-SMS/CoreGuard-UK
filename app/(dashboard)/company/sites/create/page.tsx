@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, RefreshCw, X } from "lucide-react";
-import { generateSitePin, createSite } from "@/lib/services/site-service";
+import { generateSitePin, createSite } from "@/lib/services/site-service-client";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function CreateSitePage() {

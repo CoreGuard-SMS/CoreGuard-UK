@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, MapPin, CheckCircle, AlertCircle } from "lucide-react";
-import { getShiftById } from "@/lib/services/shift-service";
+import { getShiftById } from "@/lib/services/shift-service-client";
 import { format, isToday } from "date-fns";
 
 export default function EmployeeShiftDetailPage({ params }: { params: { shiftId: string } }) {

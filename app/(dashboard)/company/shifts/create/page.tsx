@@ -13,9 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Sparkles, Calendar, Clock, Plus, Trash2, Repeat } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getSites } from "@/lib/services/site-service";
+import { getSites } from "@/lib/services/site-service-client";
 import { getSuggestedEmployees } from "@/lib/services/employee-service";
-import { createShift } from "@/lib/services/shift-service";
+import { createShift } from "@/lib/services/shift-service-client";
 
 export default function CreateShiftPage() {
   const router = useRouter();

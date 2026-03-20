@@ -179,7 +179,7 @@ export default function CreateEmployeePage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+                <Label>Role</Label>
                 <Select
                   value={formData.role}
                   onValueChange={(value) => handleInputChange("role", value || "Security Officer")}
@@ -202,7 +202,7 @@ export default function CreateEmployeePage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
+                <Label>Department</Label>
                 <Select
                   value={formData.department}
                   onValueChange={(value) => handleInputChange("department", value || "Operations")}
@@ -270,7 +270,7 @@ export default function CreateEmployeePage() {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="salaryType">Salary Type</Label>
+                  <Label>Salary Type</Label>
                   <Select
                     value={formData.salaryType}
                     onValueChange={(value) => handleInputChange("salaryType", value || "salary")}
@@ -309,7 +309,7 @@ export default function CreateEmployeePage() {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="employmentType">Employment Type</Label>
+                  <Label>Employment Type</Label>
                   <Select
                     value={formData.employmentType}
                     onValueChange={(value) => handleInputChange("employmentType", value || "Full Time")}
@@ -325,7 +325,7 @@ export default function CreateEmployeePage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="workSchedule">Work Schedule (Hours)</Label>
+                  <Label>Work Schedule (Hours)</Label>
                   <Select
                     value={formData.workSchedule}
                     onValueChange={(value) => handleInputChange("workSchedule", value || "8")}
@@ -343,7 +343,7 @@ export default function CreateEmployeePage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="location">Work Locations</Label>
+                  <Label>Work Locations</Label>
                   <div className="space-y-2">
                     <div className="flex gap-2">
                       <div className="flex-1">

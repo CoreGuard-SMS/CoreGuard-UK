@@ -574,7 +574,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="employmentType">Employment Type</Label>
+                <Label>Employment Type</Label>
                 <Select value={editForm.employment_type || 'Full Time'} onValueChange={(value) => setEditForm({...editForm, employment_type: value})}>
                   <SelectTrigger>
                     <SelectValue />
@@ -587,7 +587,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 </Select>
               </div>
               <div>
-                <Label htmlFor="salaryType">Salary Type</Label>
+                <Label>Salary Type</Label>
                 <Select value={editForm.salary_type || 'salary'} onValueChange={(value) => setEditForm({...editForm, salary_type: value})}>
                   <SelectTrigger>
                     <SelectValue />

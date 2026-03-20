@@ -202,7 +202,7 @@ export default function CreateShiftPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="site">Site</Label>
+                  <Label>Site</Label>
                   <Select value={selectedSite} onValueChange={(value) => setSelectedSite(value || "")}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a site" />
@@ -376,7 +376,7 @@ export default function CreateShiftPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="site">Site</Label>
+                  <Label>Site</Label>
                   <Select value={selectedSite} onValueChange={(value) => setSelectedSite(value || "")}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a site" />

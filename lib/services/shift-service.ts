@@ -46,7 +46,7 @@ export async function getShiftById(id: string): Promise<Shift | null> {
 }
 
 export async function createShift(shift: Omit<Shift, 'id' | 'createdAt'>): Promise<Shift | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('shifts')
     .insert({
       ...shift,
@@ -64,7 +64,7 @@ export async function createShift(shift: Omit<Shift, 'id' | 'createdAt'>): Promi
 }
 
 export async function updateShift(id: string, updates: Partial<Shift>): Promise<Shift | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('shifts')
     .update(updates)
     .eq('id', id)
@@ -141,7 +141,7 @@ export async function assignEmployeeToShift(
   employeeId: string,
   role: string
 ): Promise<ShiftAssignment | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('shift_assignments')
     .insert({
       shift_id: shiftId,

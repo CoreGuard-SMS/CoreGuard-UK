@@ -1,0 +1,44 @@
+# Railway Deployment Configuration for CoreGuard SMS
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[[services]]
+name = "app"
+
+[services.variables]
+NODE_ENV = "production"
+PORT = "3000"
+
+[nixpacks]
+node_version = "20"
+
+# Database Configuration (Railway PostgreSQL)
+DATABASE_URL = "${{DATABASE_URL}}"
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL = "${{NEXT_PUBLIC_SUPABASE_URL}}"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "${{NEXT_PUBLIC_SUPABASE_ANON_KEY}}"
+SUPABASE_SERVICE_ROLE_KEY = "${{SUPABASE_SERVICE_ROLE_KEY}}"
+
+# Application Configuration
+NEXT_PUBLIC_APP_URL = "${{PUBLIC_URL}}"
+
+# Email Service (Resend)
+RESEND_API_KEY = "${{RESEND_API_KEY}}"
+
+# Better Auth Configuration
+BETTER_AUTH_SECRET = "${{BETTER_AUTH_SECRET}}"
+BETTER_AUTH_URL = "${{PUBLIC_URL}}"
+
+[services]
+[services.web]
+[services.web.healthcheck]
+path = "/api/health"
+port = 3000

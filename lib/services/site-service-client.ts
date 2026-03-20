@@ -72,42 +72,32 @@ export async function getSiteById(id: string): Promise<Site | null> {
 }
 
 export async function createSite(site: Omit<Site, 'id' | 'createdAt'>): Promise<Site | null> {
-  const { data, error } = await supabase
-    .from('sites')
-    .insert({
-      organisation_id: site.organisationId,
-      name: site.name,
-      address: site.address,
-      contact_name: site.contactName,
-      contact_phone: site.contactPhone,
-      site_pin: site.sitePin,
-      requirements: site.requirements,
-      created_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
-  
-  if (error) {
+  try {
+    const response = await fetch('/api/sites', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(site),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error creating site:', errorData.error);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    // Convert created_at string to Date object
+    return {
+      ...data,
+      createdAt: new Date(data.createdAt),
+    };
+  } catch (error) {
     console.error('Error creating site:', error);
     return null;
   }
-  
-  // Map database fields back to frontend format
-  if (data) {
-    return {
-      id: data.id,
-      organisationId: data.organisation_id,
-      name: data.name,
-      address: data.address,
-      contactName: data.contact_name,
-      contactPhone: data.contact_phone,
-      sitePin: data.site_pin,
-      requirements: data.requirements,
-      createdAt: new Date(data.created_at),
-    };
-  }
-  
-  return null;
 }
 
 export async function updateSite(id: string, updates: Partial<Site>): Promise<Site | null> {

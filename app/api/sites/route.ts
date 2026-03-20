@@ -45,3 +45,74 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      organisationId,
+      name,
+      address,
+      contactName,
+      contactPhone,
+      sitePin,
+      requirements,
+    } = body;
+
+    // Validate required fields
+    if (!organisationId || !name || !address || !contactName || !contactPhone || !sitePin) {
+      return NextResponse.json(
+        { error: "Missing required fields: organisationId, name, address, contactName, contactPhone, sitePin" },
+        { status: 400 }
+      );
+    }
+
+    // Create the site
+    const { data: site, error } = await supabase
+      .from("sites")
+      .insert({
+        organisation_id: organisationId,
+        name,
+        address,
+        contact_name: contactName,
+        contact_phone: contactPhone,
+        site_pin: sitePin,
+        requirements: requirements || { requiredTraining: [], requiredLicences: [] },
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Site creation error:", error);
+      return NextResponse.json(
+        { error: `Database error: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    // Map database fields back to frontend format
+    const responseSite = {
+      id: site.id,
+      organisationId: site.organisation_id,
+      name: site.name,
+      address: site.address,
+      contactName: site.contact_name,
+      contactPhone: site.contact_phone,
+      sitePin: site.site_pin,
+      requirements: site.requirements,
+      createdAt: site.created_at,
+    };
+
+    return NextResponse.json(responseSite, { status: 201 });
+
+  } catch (error) {
+    console.error("Site creation API error:", error);
+    return NextResponse.json(
+      { 
+        error: "An unexpected error occurred: " + (error instanceof Error ? error.message : 'Unknown error')
+      },
+      { status: 500 }
+    );
+  }
+}

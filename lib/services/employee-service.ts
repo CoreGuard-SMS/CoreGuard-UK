@@ -89,7 +89,8 @@ export async function getEmployeeAvailability(employeeId: string, date: Date): P
     return true;
   }
   
-  return data.is_available;
+  const dataTyped = data as any;
+  return dataTyped.is_available;
 }
 
 export async function checkEmployeeQualifications(

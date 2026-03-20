@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, Clock, MapPin, Users } from "lucide-react";
-import { Shift, CalendarEvent } from "@/types";
+import { Shift, CalendarEvent, CalendarEventType } from "@/types";
 
 interface ShiftCalendarProps {
   shifts: Shift[];
@@ -21,15 +21,34 @@ export default function ShiftCalendar({ shifts, onDateSelect, onShiftClick, onCr
   const [view, setView] = useState<'month' | 'week'>('month');
 
   // Convert shifts to calendar events
-  const calendarEvents: CalendarEvent[] = shifts.map(shift => ({
-    id: shift.id,
-    title: `${shift.siteName || 'Shift'} - ${format(shift.startTime, 'HH:mm')}`,
-    start: new Date(shift.startTime),
-    end: new Date(shift.endTime),
-    type: 'shift' as const,
-    color: getStatusColor(shift.status),
-    data: shift
-  }));
+  const calendarEvents: CalendarEvent[] = shifts
+    .filter(shift => shift && shift.startTime && shift.endTime)
+    .map(shift => {
+      try {
+        const startDate = new Date(shift.startTime);
+        const endDate = new Date(shift.endTime);
+        
+        // Validate dates
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+          console.error('Invalid shift dates:', shift);
+          return null;
+        }
+        
+        return {
+          id: shift.id,
+          title: `${shift.siteName || 'Shift'} - ${format(startDate, 'HH:mm')}`,
+          start: startDate,
+          end: endDate,
+          type: 'shift' as CalendarEventType,
+          color: getStatusColor(shift.status),
+          data: shift
+        };
+      } catch (error) {
+        console.error('Error processing shift:', shift, error);
+        return null;
+      }
+    })
+    .filter((event): event is NonNullable<typeof event> => event !== null);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);

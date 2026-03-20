@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Edit, Trash2, AlertTriangle } from "lucide-react";
 import { updateSite, deleteSite } from "@/lib/services/site-service-client";
 
@@ -55,7 +54,6 @@ export default function SiteEditModal({ site, isOpen, onClose, onUpdate, onDelet
       const updatedSite = await updateSite(site.id, {
         name: formData.name,
         address: formData.address,
-        city: formData.city,
         contact_name: formData.contactName,
         contact_phone: formData.contactPhone,
         status: formData.status,
@@ -110,10 +108,14 @@ export default function SiteEditModal({ site, isOpen, onClose, onUpdate, onDelet
 
         <div className="space-y-6">
           {error && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 text-red-800">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="text-sm">{error}</span>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -253,12 +255,16 @@ export default function SiteEditModal({ site, isOpen, onClose, onUpdate, onDelet
             </DialogDescription>
           </DialogHeader>
 
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Deleting this site will also remove all associated shifts, assignments, and employee data.
-            </AlertDescription>
-          </Alert>
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-2 text-red-800">
+                <AlertTriangle className="h-4 w-4 mt-0.5" />
+                <span className="text-sm">
+                  Deleting this site will also remove all associated shifts, assignments, and employee data.
+                </span>
+              </div>
+            </CardContent>
+          </Card>
 
           <DialogFooter>
             <Button

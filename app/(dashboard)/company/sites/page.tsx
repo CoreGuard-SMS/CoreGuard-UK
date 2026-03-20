@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 export default function SitesPage() {
   const { user } = useAuth();
   const [sites, setSites] = useState<any[]>([]);
+  const [siteShifts, setSiteShifts] = useState<{ [key: string]: any[] }>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,8 +19,26 @@ export default function SitesPage() {
       if (user?.organisationId) {
         try {
           const { getSites } = await import("@/lib/services/site-service-client");
+          const { getShifts } = await import("@/lib/services/shift-service-client");
+          
           const sitesData = await getSites(user.organisationId);
           setSites(sitesData);
+
+          // Fetch shifts for each site
+          const shiftsData: { [key: string]: any[] } = {};
+          for (const site of sitesData) {
+            try {
+              const siteShifts = await getShifts({ 
+                organisationId: user.organisationId,
+                siteId: site.id 
+              });
+              shiftsData[site.id] = siteShifts;
+            } catch (error) {
+              console.error(`Error fetching shifts for site ${site.id}:`, error);
+              shiftsData[site.id] = [];
+            }
+          }
+          setSiteShifts(shiftsData);
         } catch (error) {
           console.error("Error fetching sites:", error);
         }
@@ -33,9 +52,9 @@ export default function SitesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sites</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Sites & Rota Management</h1>
           <p className="text-muted-foreground">
-            Manage your locations and site access
+            Manage your locations and schedule shifts for each site
           </p>
         </div>
         <Link href="/company/sites/create">
@@ -99,8 +118,14 @@ export default function SitesPage() {
                 </div>
 
                 <div className="pt-2 border-t">
-                  <p className="text-xs text-muted-foreground mb-2">City</p>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-muted-foreground">Active Shifts</p>
+                    <Badge variant="secondary" className="text-xs">
+                      {siteShifts[site.id]?.length || 0} shifts
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-muted-foreground">City</p>
                     <Badge variant="secondary" className="text-xs">
                       {site.city || 'N/A'}
                     </Badge>
@@ -108,8 +133,9 @@ export default function SitesPage() {
                 </div>
 
                 <Link href={`/company/sites/${site.id}`}>
-                  <Button variant="outline" className="w-full">
-                    View Details
+                  <Button className="w-full">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Manage Rota
                   </Button>
                 </Link>
               </CardContent>

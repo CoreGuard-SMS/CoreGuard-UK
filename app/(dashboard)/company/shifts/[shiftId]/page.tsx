@@ -36,11 +36,18 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!params?.shiftId) {
+        console.error('No shiftId provided');
+        return;
+      }
+
       try {
+        console.log('Fetching shift data for ID:', params.shiftId);
         const shiftData = await getShiftById(params.shiftId);
         const assignments = await getShiftAssignments(params.shiftId);
 
         if (!shiftData) {
+          console.error('Shift not found:', params.shiftId);
           notFound();
           return;
         }
@@ -92,6 +99,22 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
     }
   };
 
+  if (!shift) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Shift not found</p>
+          <Link href="/company/shifts">
+            <Button className="mt-4">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Shifts
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -106,11 +129,11 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold tracking-tight">{shift.siteName}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{shift.siteName || 'Unknown Site'}</h1>
             <Badge variant={getStatusColor(shift.status)}>{shift.status}</Badge>
           </div>
           <p className="text-muted-foreground">
-            {format(shift.startTime, 'EEEE, MMMM dd, yyyy')}
+            {shift.startTime ? format(shift.startTime, 'EEEE, MMMM dd, yyyy') : 'No date set'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -126,7 +149,9 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{format(shift.startTime, 'h:mm a')}</div>
+            <div className="text-2xl font-bold">
+              {shift.startTime ? format(shift.startTime, 'h:mm a') : 'Not set'}
+            </div>
           </CardContent>
         </Card>
 
@@ -136,7 +161,9 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{format(shift.endTime, 'h:mm a')}</div>
+            <div className="text-2xl font-bold">
+              {shift.endTime ? format(shift.endTime, 'h:mm a') : 'Not set'}
+            </div>
           </CardContent>
         </Card>
 
@@ -175,7 +202,7 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Site</p>
-                <p className="text-sm text-muted-foreground">{shift.siteName}</p>
+                <p className="text-sm text-muted-foreground">{shift.siteName || 'Unknown Site'}</p>
               </div>
             </div>
 

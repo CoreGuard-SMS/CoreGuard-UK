@@ -20,6 +20,7 @@ import {
   LogOut,
 } from "lucide-react";
 import ThemeToggle from "@/components/theme-toggle";
+import SidebarWeather from "@/components/sidebar-weather";
 
 import {
   Sidebar,
@@ -215,6 +216,13 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Weather</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarWeather />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

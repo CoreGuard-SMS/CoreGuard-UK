@@ -72,7 +72,9 @@ function CreateShiftPageContent() {
 
   const fetchEmployees = async () => {
     try {
+      console.log("Fetching employees for organisation:", user.organisationId);
       const employeeData = await getEmployees({ organisationId: user.organisationId });
+      console.log("Fetched employees:", employeeData);
       setEmployees(employeeData);
     } catch (error) {
       console.error("Error fetching employees:", error);

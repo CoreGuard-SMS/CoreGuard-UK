@@ -343,15 +343,20 @@ export default function WeatherCard() {
         }
 
         .filter {
+          position: absolute;
+          top: 0;
+          left: 0;
           height: 100%;
           width: 100%;
           background: linear-gradient(
-            0deg,
-            rgba(255, 255, 255, 1) 0%,
-            rgba(255, 255, 255, 0) 40%
+            180deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 30%,
+            rgba(255, 255, 255, 0.3) 70%,
+            rgba(255, 255, 255, 0.5) 100%
           );
           z-index: 5;
-          opacity: 0.2;
+          pointer-events: none;
         }
 
         /* Content section */

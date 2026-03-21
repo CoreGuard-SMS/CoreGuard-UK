@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Calendar, Clock, MapPin, Users, Plus, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getShifts } from "@/lib/services/shift-service";
+import { getShifts } from "@/lib/services/shift-service-client";
 import { getSites } from "@/lib/services/site-service-client";
 import { Shift, Site } from "@/types";
 import ShiftCalendar from "@/components/calendar/shift-calendar";

@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertTriangle, CheckCircle, Clock, XCircle } from "lucide-react";
-import { getComplianceFlags, getExpiringCertifications, getExpiringLicences, getComplianceScore } from "@/lib/services/compliance-service";
+import { getComplianceFlags, getExpiringCertifications, getExpiringLicences, getComplianceScore } from "@/lib/services/compliance-service-client";
 
 // Native date utilities to avoid TDZ issues
 const format = (date: Date, formatStr: string) => {

@@ -8,9 +8,13 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import WeatherCard from "@/components/weather-card";
+import NotificationSystem from "@/components/notification-system";
+import { useNotifications } from "@/components/notification-system";
 
 export default function CompanyDashboardPage() {
   const { user } = useAuth();
+  const notifications = useNotifications();
   const [stats, setStats] = useState({
     employeeCount: 0,
     siteCount: 0,
@@ -23,6 +27,20 @@ export default function CompanyDashboardPage() {
   useEffect(() => {
     if (user?.organisationId) {
       fetchDashboardData();
+      // Add demo notifications
+      setTimeout(() => {
+        notifications.success("Welcome back!", "Dashboard loaded successfully");
+      }, 1000);
+      
+      setTimeout(() => {
+        notifications.info("Weather Update", "Check out the new weather widget");
+      }, 2000);
+      
+      if (stats.complianceAlerts > 0) {
+        setTimeout(() => {
+          notifications.warning("Compliance Alert", `${stats.complianceAlerts} items need attention`);
+        }, 3000);
+      }
     }
   }, [user]);
 
@@ -50,11 +68,15 @@ export default function CompanyDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back! Here&apos;s an overview of your organisation.
-        </p>
+      <NotificationSystem />
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back! Here&apos;s an overview of your organisation.
+          </p>
+        </div>
+        <WeatherCard />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

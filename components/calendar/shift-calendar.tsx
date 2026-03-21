@@ -368,20 +368,6 @@ export default function ShiftCalendar({ shifts, sites, onDateSelect, onShiftClic
 
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-8 gap-2">
-          <div className="text-sm font-medium text-muted-foreground">Day</div>
-          {weekDays.map(day => (
-            <div key={day.toString()} className="text-center">
-              <div className="text-sm font-medium">
-                {safeFormat(day, 'EEE')}
-              </div>
-              <div className={`text-lg ${isToday(day) ? 'text-primary font-bold' : ''}`}>
-                {safeFormat(day, 'd')}
-              </div>
-            </div>
-          ))}
-        </div>
-
         <div className="overflow-x-auto">
           <div className="min-w-[1200px]">
             {/* Time header row */}

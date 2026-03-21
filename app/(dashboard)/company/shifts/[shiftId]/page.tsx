@@ -1,11 +1,14 @@
+"use client";
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, MapPin, Users, CheckCircle } from "lucide-react";
 import { getShiftById, getShiftAssignments } from "@/lib/services/shift-service-client";
-import { getEmployeeById } from "@/lib/services/employee-service";
+import { getEmployeeById } from "@/lib/services/employee-service-client";
 
 // Native date utilities to avoid TDZ issues
 const format = (date: Date, formatStr: string) => {
@@ -26,26 +29,57 @@ const format = (date: Date, formatStr: string) => {
   }
 };
 
-export default async function ShiftDetailPage({ params }: { params: { shiftId: string } }) {
-  const shift = await getShiftById(params.shiftId);
-  const assignments = await getShiftAssignments(params.shiftId);
+export default function ShiftDetailPage({ params }: { params: { shiftId: string } }) {
+  const [shift, setShift] = useState<any>(null);
+  const [assignmentsWithEmployees, setAssignmentsWithEmployees] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!shift) {
-    notFound();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const shiftData = await getShiftById(params.shiftId);
+        const assignments = await getShiftAssignments(params.shiftId);
+
+        if (!shiftData) {
+          notFound();
+          return;
+        }
+
+        // Fetch employee details for assignments
+        const assignmentsWithEmployeesData = await Promise.all(
+          assignments.map(async (assignment) => {
+            const employee = await getEmployeeById(assignment.employeeId);
+            return {
+              ...assignment,
+              employee
+            };
+          })
+        );
+
+        setShift(shiftData);
+        setAssignmentsWithEmployees(assignmentsWithEmployeesData);
+      } catch (error) {
+        console.error('Error fetching shift data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [params.shiftId]);
+
+  const requiredCount = shift?.requiredRoles?.reduce((sum: number, role: any) => sum + role.count, 0) || 0;
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-1/3"></div>
+          <div className="h-32 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
   }
-
-  // Fetch employee details for assignments
-  const assignmentsWithEmployees = await Promise.all(
-    assignments.map(async (assignment) => {
-      const employee = await getEmployeeById(assignment.employeeId);
-      return {
-        ...assignment,
-        employee
-      };
-    })
-  );
-
-  const requiredCount = shift.requiredRoles.reduce((sum: number, role: any) => sum + role.count, 0);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -125,7 +159,7 @@ export default async function ShiftDetailPage({ params }: { params: { shiftId: s
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{assignments.length} / {requiredCount}</div>
+            <div className="text-2xl font-bold">{assignmentsWithEmployees.length} / {requiredCount}</div>
             <p className="text-xs text-muted-foreground mt-1">employees</p>
           </CardContent>
         </Card>
@@ -148,7 +182,7 @@ export default async function ShiftDetailPage({ params }: { params: { shiftId: s
             <div>
               <p className="text-sm font-medium mb-2">Required Roles</p>
               <div className="flex flex-wrap gap-2">
-                {shift.requiredRoles.map((role, idx) => (
+                {shift.requiredRoles?.map((role: any, idx: number) => (
                   <Badge key={idx} variant="outline">
                     {role.role} ({role.count})
                   </Badge>
@@ -159,7 +193,7 @@ export default async function ShiftDetailPage({ params }: { params: { shiftId: s
             <div>
               <p className="text-sm font-medium mb-2">Required Training</p>
               <div className="flex flex-wrap gap-2">
-                {shift.requiredTraining.map((training, idx) => (
+                {shift.requiredTraining?.map((training: any, idx: number) => (
                   <Badge key={idx} variant="secondary">{training}</Badge>
                 ))}
               </div>
@@ -168,7 +202,7 @@ export default async function ShiftDetailPage({ params }: { params: { shiftId: s
             <div>
               <p className="text-sm font-medium mb-2">Required Licences</p>
               <div className="flex flex-wrap gap-2">
-                {shift.requiredLicences.map((licence, idx) => (
+                {shift.requiredLicences?.map((licence: any, idx: number) => (
                   <Badge key={idx} variant="secondary">{licence}</Badge>
                 ))}
               </div>

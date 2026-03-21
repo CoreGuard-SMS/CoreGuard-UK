@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Sparkles, Calendar, Clock, Plus, Trash2, Repeat, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getSites } from "@/lib/services/site-service-client";
-import { getSuggestedEmployees, getEmployees } from "@/lib/services/employee-service";
+import { getSuggestedEmployees, getEmployees } from "@/lib/services/employee-service-client";
 import { createShift, assignEmployeeToShift } from "@/lib/services/shift-service-client";
 
 function CreateShiftPageContent() {

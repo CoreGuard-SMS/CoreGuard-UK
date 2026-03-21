@@ -21,7 +21,10 @@ export async function getShifts(filters?: {
       params.append('status', filters.status);
     }
 
-    const response = await fetch(`/api/shifts?${params.toString()}`);
+    const apiUrl = `/api/shifts?${params.toString()}`;
+    console.log('Fetching shifts from:', apiUrl);
+    
+    const response = await fetch(apiUrl);
     
     if (!response.ok) {
       console.error('Error fetching shifts:', response.statusText);
@@ -29,6 +32,7 @@ export async function getShifts(filters?: {
     }
 
     const data = await response.json();
+    console.log('Shifts API response:', data);
     
     // Convert date strings to Date objects
     return (data || []).map((shift: any) => {

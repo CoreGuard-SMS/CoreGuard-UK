@@ -39,6 +39,9 @@ export default function ShiftsPage() {
           getSites(user.organisationId)
         ]);
         
+        console.log('Fetched shifts:', shiftsData);
+        console.log('Fetched sites:', sitesData);
+        
         setShifts(shiftsData);
         setSites(sitesData || []);
       } catch (error) {
@@ -57,8 +60,19 @@ export default function ShiftsPage() {
     const matchesSearch = searchTerm === "" || 
       getSiteName(shift.siteId).toLowerCase().includes(searchTerm.toLowerCase());
     
+    console.log('Filtering shift:', shift, {
+      matchesSite,
+      matchesStatus,
+      matchesSearch,
+      selectedSite,
+      selectedStatus,
+      searchTerm
+    });
+    
     return matchesSite && matchesStatus && matchesSearch;
   });
+
+  console.log('Filtered shifts result:', filteredShifts);
 
   const getSiteName = (siteId: string) => {
     const site = sites.find(s => s.id === siteId);

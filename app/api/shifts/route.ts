@@ -95,6 +95,8 @@ export async function GET(request: NextRequest) {
 
     const { data: shifts, error } = await query.order("start_time", { ascending: true });
 
+    console.log('Shifts query result:', { shifts, error, organisationId, siteId, status });
+
     if (error) {
       console.error("Shifts API error:", error);
       return NextResponse.json(
@@ -167,6 +169,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Creating shift with data:', {
+      organisation_id: organisationId,
+      site_id: siteId,
+      start_time: startTime,
+      end_time: endTime,
+      break_duration: breakDuration,
+      required_roles: requiredRoles,
+      status: status || 'draft',
+      created_by: createdBy,
+    });
+
     // Create the shift
     const { data: shift, error } = await supabase
       .from("shifts")
@@ -185,6 +198,8 @@ export async function POST(request: NextRequest) {
       })
       .select()
       .single();
+
+    console.log('Shift creation result:', { shift, error });
 
     if (error) {
       console.error("Shift creation error:", error);

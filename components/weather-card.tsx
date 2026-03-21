@@ -137,7 +137,6 @@ export default function WeatherCard() {
           align-items: center;
           position: relative;
           width: 100%;
-          max-width: 400px;
           height: 350px;
           border-radius: 20px;
           overflow: hidden;

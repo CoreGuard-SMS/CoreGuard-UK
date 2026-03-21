@@ -71,9 +71,9 @@ export default function EmployeeDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 space-y-6">
+    <div className="min-h-screen bg-background space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold tracking-tight">
           Welcome back, John!
         </h1>
         <p className="text-muted-foreground">

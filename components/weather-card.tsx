@@ -31,56 +31,62 @@ export default function WeatherCard() {
     try {
       // Get user's location
       if (!navigator.geolocation) {
-        throw new Error("Geolocation is not supported");
+        console.log("Geolocation not supported, using default location");
+        fetchWeatherForLocation(51.5074, -0.1278); // London
+        return;
       }
 
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          
-          // Fetch weather data (using OpenWeatherMap API as example)
-          const apiKey = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
-          if (!apiKey) {
-            // Fallback to mock data for UK
-            setWeather(getMockUKWeatherData());
-            setLoading(false);
-            return;
-          }
-
-          const response = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch weather data");
-          }
-
-          const data = await response.json();
-          
-          // Transform API data to our format
-          const weatherData: WeatherData = {
-            location: data.name || "Unknown Location",
-            temperature: Math.round(data.main.temp),
-            condition: data.weather[0].main,
-            humidity: data.main.humidity,
-            windSpeed: Math.round(data.wind.speed * 3.6), // Convert m/s to km/h
-            time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-            forecast: [] // Would need separate API call for forecast
-          };
-
-          setWeather(weatherData);
-          setLoading(false);
+          console.log("Got location:", latitude, longitude);
+          fetchWeatherForLocation(latitude, longitude);
         },
         (error) => {
           console.error("Geolocation error:", error);
-          // Fallback to UK mock data
-          setWeather(getMockUKWeatherData());
-          setLoading(false);
+          // Fallback to London
+          fetchWeatherForLocation(51.5074, -0.1278);
         }
       );
     } catch (error) {
       console.error("Weather fetch error:", error);
       setError("Failed to fetch weather data");
+      setLoading(false);
+    }
+  };
+
+  const fetchWeatherForLocation = async (lat: number, lon: number) => {
+    try {
+      setLoading(true);
+      
+      // Fetch current weather
+      const weatherResponse = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      const currentWeather = await weatherResponse.json();
+      
+      // Fetch forecast
+      const forecastResponse = await fetch(`/api/weather/forecast?lat=${lat}&lon=${lon}&days=5`);
+      const forecastData = await forecastResponse.json();
+      
+      console.log('Current weather:', currentWeather);
+      console.log('Forecast data:', forecastData);
+      
+      // Combine data
+      const weatherData: WeatherData = {
+        location: currentWeather.location,
+        temperature: currentWeather.temperature,
+        condition: currentWeather.condition,
+        humidity: currentWeather.humidity,
+        windSpeed: currentWeather.windSpeed,
+        time: currentWeather.time,
+        forecast: forecastData.forecasts || []
+      };
+
+      setWeather(weatherData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching weather for location:", error);
+      // Fallback to mock data
+      setWeather(getMockUKWeatherData());
       setLoading(false);
     }
   };

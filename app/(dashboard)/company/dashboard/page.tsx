@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import WeatherCard from "@/components/weather-card";
 import NotificationSystem from "@/components/notification-system";
 import { useNotifications } from "@/components/notification-system";
 
@@ -69,14 +68,11 @@ export default function CompanyDashboardPage() {
   return (
     <div className="space-y-6">
       <NotificationSystem />
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here&apos;s an overview of your organisation.
-          </p>
-        </div>
-        <WeatherCard />
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Welcome back! Here&apos;s an overview of your organisation.
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

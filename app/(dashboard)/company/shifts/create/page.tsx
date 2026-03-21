@@ -11,11 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Sparkles, Calendar, Clock, Plus, Trash2, Repeat } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar, Clock, Plus, Trash2, Repeat, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getSites } from "@/lib/services/site-service-client";
-import { getSuggestedEmployees } from "@/lib/services/employee-service";
-import { createShift } from "@/lib/services/shift-service-client";
+import { getSuggestedEmployees, getEmployees } from "@/lib/services/employee-service";
+import { createShift, assignEmployeeToShift } from "@/lib/services/shift-service-client";
 
 function CreateShiftPageContent() {
   const router = useRouter();
@@ -28,6 +28,8 @@ function CreateShiftPageContent() {
   const [endTime, setEndTime] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Bulk creation states
@@ -41,6 +43,7 @@ function CreateShiftPageContent() {
   useEffect(() => {
     if (user?.organisationId) {
       fetchSites();
+      fetchEmployees();
     }
   }, [user]);
 
@@ -64,6 +67,15 @@ function CreateShiftPageContent() {
       setSites(siteData);
     } catch (error) {
       console.error("Error fetching sites:", error);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      const employeeData = await getEmployees({ organisationId: user.organisationId });
+      setEmployees(employeeData);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
     } finally {
       setLoading(false);
     }
@@ -95,7 +107,8 @@ function CreateShiftPageContent() {
       breakDuration: 30,
       status: 'draft',
       organisationId: user.organisationId,
-      createdBy: user.id
+      createdBy: user.id,
+      assignedEmployees: selectedEmployees
     };
 
     switch (recurringPattern) {
@@ -169,6 +182,16 @@ function CreateShiftPageContent() {
         
         const result = await createShift(shiftData);
         if (result) {
+          // Assign selected employees to the shift
+          if (shift.assignedEmployees && shift.assignedEmployees.length > 0) {
+            for (const employeeId of shift.assignedEmployees) {
+              try {
+                await assignEmployeeToShift(result.id, employeeId, 'Employee');
+              } catch (assignmentError) {
+                console.error('Error assigning employee to shift:', assignmentError);
+              }
+            }
+          }
           results.push(result);
         }
       } catch (error) {
@@ -178,6 +201,11 @@ function CreateShiftPageContent() {
     
     setCreatedShifts(results);
     setBulkCreating(false);
+    
+    // Redirect back to shifts page with refresh parameter
+    if (results.length > 0) {
+      router.push('/company/shifts?created=true');
+    }
   };
 
   const toggleWeekday = (day: number) => {
@@ -287,6 +315,62 @@ function CreateShiftPageContent() {
                     placeholder="30"
                     defaultValue="30"
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Assign Employees</CardTitle>
+                <CardDescription>
+                  Select employees to assign to this shift
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
+                    {employees.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center">
+                        No employees available
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {employees.map((employee) => (
+                          <div key={employee.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`employee-${employee.id}`}
+                              checked={selectedEmployees.includes(employee.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedEmployees(prev => [...prev, employee.id]);
+                                } else {
+                                  setSelectedEmployees(prev => prev.filter(id => id !== employee.id));
+                                }
+                              }}
+                            />
+                            <Label
+                              htmlFor={`employee-${employee.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                            >
+                              <div>
+                                {employee.firstName} {employee.lastName}
+                                <Badge variant="outline" className="ml-2 text-xs">
+                                  {employee.role || 'Employee'}
+                                </Badge>
+                              </div>
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedEmployees.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      {selectedEmployees.length} employee{selectedEmployees.length !== 1 ? 's' : ''} selected
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

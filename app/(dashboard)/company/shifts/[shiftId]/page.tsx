@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, MapPin, Users, CheckCircle } from "lucide-react";
 import { getShiftById, getShiftAssignments } from "@/lib/services/shift-service-client";
+import { getEmployeeById } from "@/lib/services/employee-service";
 
 // Native date utilities to avoid TDZ issues
 const format = (date: Date, formatStr: string) => {
@@ -25,24 +26,25 @@ const format = (date: Date, formatStr: string) => {
   }
 };
 
-export default function ShiftDetailPage({ params }: { params: { shiftId: string } }) {
-  const shift = {
-    id: params.shiftId,
-    siteName: "Main Office",
-    status: "published",
-    startTime: new Date("2024-01-15T09:00:00Z"),
-    endTime: new Date("2024-01-15T17:00:00Z"),
-    breakDuration: 60,
-    requiredRoles: [{ count: 2, role: "Security Guard" }],
-    requiredTraining: ["First Aid", "Security Training"],
-    requiredLicences: ["SIA Licence"]
-  }; // Mock data for now
+export default async function ShiftDetailPage({ params }: { params: { shiftId: string } }) {
+  const shift = await getShiftById(params.shiftId);
+  const assignments = await getShiftAssignments(params.shiftId);
 
   if (!shift) {
     notFound();
   }
 
-  const assignments: any[] = []; // Mock data for now
+  // Fetch employee details for assignments
+  const assignmentsWithEmployees = await Promise.all(
+    assignments.map(async (assignment) => {
+      const employee = await getEmployeeById(assignment.employeeId);
+      return {
+        ...assignment,
+        employee
+      };
+    })
+  );
+
   const requiredCount = shift.requiredRoles.reduce((sum: number, role: any) => sum + role.count, 0);
 
   const getStatusColor = (status: string) => {
@@ -180,19 +182,26 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
               <CardTitle>Assigned Employees</CardTitle>
               <Button size="sm" variant="outline">Add Employee</Button>
             </div>
-            <CardDescription>{assignments.length} employees assigned</CardDescription>
+            <CardDescription>{assignmentsWithEmployees.length} employees assigned</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {assignments.map((assignment) => (
+              {assignmentsWithEmployees.map((assignment) => (
                 <div key={assignment.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     {assignment.checkInTime && (
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     )}
                     <div>
-                      <p className="font-medium">{assignment.employeeName}</p>
-                      <p className="text-sm text-muted-foreground">{assignment.assignedRole}</p>
+                      <p className="font-medium">
+                        {assignment.employee ? 
+                          `${assignment.employee.firstName} ${assignment.employee.lastName}` : 
+                          'Unknown Employee'
+                        }
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {assignment.assignedRole || 'Employee'}
+                      </p>
                     </div>
                   </div>
                   <Badge variant={assignment.status === 'checked_in' ? 'default' : 'secondary'}>
@@ -200,7 +209,7 @@ export default function ShiftDetailPage({ params }: { params: { shiftId: string 
                   </Badge>
                 </div>
               ))}
-              {assignments.length === 0 && (
+              {assignmentsWithEmployees.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
                   No employees assigned yet
                 </p>

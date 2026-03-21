@@ -27,6 +27,7 @@ export default function ShiftsPage() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDateForCreation, setSelectedDateForCreation] = useState<Date | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +49,7 @@ export default function ShiftsPage() {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, refreshKey]);
 
   const filteredShifts = shifts.filter(shift => {
     const matchesSite = selectedSite === "all" || shift.siteId === selectedSite;

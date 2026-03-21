@@ -19,7 +19,6 @@ export default function SidebarWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isDaytime, setIsDaytime] = useState(true);
 
   // Update time every second
   useEffect(() => {
@@ -28,12 +27,6 @@ export default function SidebarWeather() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // Check if it's daytime
-  useEffect(() => {
-    const hour = currentTime.getHours();
-    setIsDaytime(hour >= 6 && hour < 18);
-  }, [currentTime]);
 
   useEffect(() => {
     fetchWeatherData();
@@ -93,12 +86,12 @@ export default function SidebarWeather() {
     switch (condition.toLowerCase()) {
       case 'rain':
       case 'rainy':
-        return <CloudRain className="w-32 h-32" />;
+        return <CloudRain className="w-8 h-8" />;
       case 'clear':
       case 'sunny':
-        return isNight ? <Moon className="w-32 h-32" /> : <Sun className="w-32 h-32" />;
+        return isNight ? <Moon className="w-8 h-8" /> : <Sun className="w-8 h-8" />;
       default:
-        return <Cloud className="w-32 h-32" />;
+        return <Cloud className="w-8 h-8" />;
     }
   };
 
@@ -115,22 +108,21 @@ export default function SidebarWeather() {
   });
 
   const formatDate = (date: Date) => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
     const dayName = days[date.getDay()];
     const day = date.getDate();
     const month = months[date.getMonth()];
-    const year = date.getFullYear();
     
-    return `${dayName} ${day} ${month} ${year}`;
+    return `${dayName} ${day} ${month}`;
   };
 
   if (loading) {
     return (
       <div className="px-3 py-2">
         <div className="animate-pulse">
-          <div className="h-64 bg-muted rounded-lg"></div>
+          <div className="h-40 bg-muted rounded-lg"></div>
         </div>
       </div>
     );
@@ -141,73 +133,161 @@ export default function SidebarWeather() {
   }
 
   return (
-    <div className="px-3 py-2">
-      <div className={`flex flex-col ${isDaytime ? 'bg-white' : 'bg-gray-900'} rounded p-4 w-full max-w-xs transition-colors duration-1000`}>
-        <div className={`font-bold text-xl ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
-          {weather.location}
-        </div>
-        <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
-          {formatDate(currentTime)}
-        </div>
-        
-        <div className={`mt-6 text-6xl self-center inline-flex items-center justify-center rounded-lg ${isDaytime ? 'text-indigo-400' : 'text-indigo-300'} h-24 w-24 transition-colors duration-1000`}>
-          {weather.icon}
-        </div>
-        
-        <div className="flex flex-row items-center justify-center mt-6">
-          <div className={`font-medium text-6xl ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
-            {weather.temperature}°
-          </div>
-          <div className="flex flex-col items-center ml-6">
-            <div className={isDaytime ? 'text-gray-900' : 'text-white'}>
-              {weather.condition}
+    <>
+      <style jsx>{`
+        .body-wrapper {
+          font-family: 'Outfit', sans-serif;
+          background: linear-gradient(135deg, #3a3897 0%, #2c2a72 40%, #1a1a4e 100%);
+        }
+
+        .weather-widget::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+          animation: shimmer 15s infinite linear;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        @keyframes shimmer {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .weather-icon-main {
+          filter: drop-shadow(0 0 12px rgba(220, 220, 255, 0.5));
+          animation: floating 3.5s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+          100% { transform: translateY(0px); }
+        }
+
+        #cloud-container {
+          pointer-events: auto;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeInUp {
+          opacity: 0;
+          animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInScaleUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        .animate-fadeInScaleUp {
+          opacity: 0;
+          animation: fadeInScaleUp 0.7s ease-out forwards;
+        }
+
+        @keyframes gentleBob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .animate-gentleBob {
+          animation: gentleBob 2.5s ease-in-out infinite;
+        }
+
+        .delay-100 { animation-delay: 0.1s !important; }
+        .delay-200 { animation-delay: 0.2s !important; }
+        .delay-300 { animation-delay: 0.3s !important; }
+        .delay-400 { animation-delay: 0.4s !important; }
+        .delay-500 { animation-delay: 0.5s !important; }
+        .delay-600 { animation-delay: 0.6s !important; }
+        .delay-700 { animation-delay: 0.7s !important; }
+      `}</style>
+
+      <div className="px-3 py-2">
+        <div className="weather-widget body-wrapper relative rounded-lg p-3 w-full max-w-xs overflow-hidden">
+          <div className="relative z-10">
+            <div className="text-white text-sm font-bold animate-fadeInUp">
+              {weather.location}
             </div>
-            <div className="mt-1">
-              <span className="text-sm">
-                {isDaytime ? '↑' : '↑'}
-              </span>
-              <span className={`text-sm font-light ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
-                {weather.high}°C
-              </span>
+            <div className="text-white/70 text-xs animate-fadeInUp delay-100">
+              {formatDate(currentTime)}
             </div>
-            <div>
-              <span className="text-sm">
-                {isDaytime ? '↓' : '↓'}
-              </span>
-              <span className={`text-sm font-light ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
-                {weather.low}°C
-              </span>
+            
+            <div className="mt-2 flex items-center justify-center">
+              <div className="weather-icon-main text-white/90 animate-gentleBob">
+                {weather.icon}
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <div className="flex flex-row justify-between mt-6">
-          <div className="flex flex-col items-center">
-            <div className={`font-medium text-sm ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
-              Wind
+            
+            <div className="flex items-center justify-center mt-2">
+              <div className="text-white text-2xl font-bold animate-fadeInScaleUp delay-200">
+                {weather.temperature}°
+              </div>
+              <div className="flex flex-col items-center ml-3 animate-fadeInScaleUp delay-300">
+                <div className="text-white text-xs">
+                  {weather.condition}
+                </div>
+                <div className="flex items-center gap-1 mt-1">
+                  <span className="text-white/70 text-xs">↑</span>
+                  <span className="text-white/70 text-xs">
+                    {weather.high}°
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-white/70 text-xs">↓</span>
+                  <span className="text-white/70 text-xs">
+                    {weather.low}°
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
-              {weather.wind}k/h
-            </div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className={`font-medium text-sm ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
-              Humidity
-            </div>
-            <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
-              {weather.humidity}%
-            </div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className={`font-medium text-sm ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
-              Visibility
-            </div>
-            <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
-              {weather.visibility}km
+            
+            <div className="flex justify-between mt-3 animate-fadeInScaleUp delay-400">
+              <div className="text-center">
+                <div className="text-white/80 text-xs font-medium">
+                  Wind
+                </div>
+                <div className="text-white/60 text-xs">
+                  {weather.wind}k/h
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-white/80 text-xs font-medium">
+                  Humidity
+                </div>
+                <div className="text-white/60 text-xs">
+                  {weather.humidity}%
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-white/80 text-xs font-medium">
+                  Visibility
+                </div>
+                <div className="text-white/60 text-xs">
+                  {weather.visibility}km
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

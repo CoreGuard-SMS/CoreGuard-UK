@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, CheckCircle } from "lucide-react";
+import { GlassCard } from "@/components/ui/glass-card";
+import { EnhancedStatCard } from "@/components/ui/enhanced-stat-card";
+import { Calendar, Clock, MapPin, CheckCircle, TrendingUp, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { getEmployeeShifts } from "@/lib/actions/shift";
 
@@ -71,180 +73,173 @@ export default function EmployeeDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome back, John!</h1>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+          Welcome back, John!
+        </h1>
         <p className="text-muted-foreground">
           Here&apos;s your schedule and updates
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Shifts This Week</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{upcomingShifts.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Upcoming shifts</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 md:grid-cols-3">
+        <EnhancedStatCard
+          title="Shifts This Week"
+          value={upcomingShifts.length}
+          icon={Calendar}
+          description="Upcoming shifts"
+          trend={{ value: 8, isPositive: true }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hours This Month</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">32</div>
-            <p className="text-xs text-muted-foreground mt-1">Total hours worked</p>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Hours This Month"
+          value="32"
+          icon={Clock}
+          description="Total hours worked"
+          trend={{ value: 12, isPositive: true }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sites Accessible</CardTitle>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground mt-1">Active sites</p>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Sites Accessible"
+          value="2"
+          icon={MapPin}
+          description="Active sites"
+          trend={{ value: 0, isPositive: true }}
+        />
       </div>
 
       {nextShift && (
-        <Card className="border-primary">
+        <GlassCard className="border-primary/50 bg-primary/10">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Next Shift</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white">Next Shift</CardTitle>
+                <CardDescription className="text-gray-200">
                   {isToday(nextShift.startTime) ? 'Today' : format(nextShift.startTime, 'EEEE, MMMM dd')}
                 </CardDescription>
               </div>
-              <Badge variant="default">Upcoming</Badge>
+              <Badge variant="default" className="bg-primary/80">Upcoming</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <MapPin className="h-4 w-4 text-gray-300" />
                 <div>
-                  <p className="text-sm font-medium">{nextShift.siteName}</p>
-                  <p className="text-xs text-muted-foreground">Site</p>
+                  <p className="text-sm font-medium text-white">{nextShift.siteName}</p>
+                  <p className="text-xs text-gray-300">Site</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="h-4 w-4 text-gray-300" />
                 <div>
-                  <p className="text-sm font-medium">
+                  <p className="text-sm font-medium text-white">
                     {format(nextShift.startTime, 'h:mm a')}
                   </p>
-                  <p className="text-xs text-muted-foreground">Start time</p>
+                  <p className="text-xs text-gray-300">Start time</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="h-4 w-4 text-gray-300" />
                 <div>
-                  <p className="text-sm font-medium">
+                  <p className="text-sm font-medium text-white">
                     {format(nextShift.endTime, 'h:mm a')}
                   </p>
-                  <p className="text-xs text-muted-foreground">End time</p>
+                  <p className="text-xs text-gray-300">End time</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="h-4 w-4 text-gray-300" />
                 <div>
-                  <p className="text-sm font-medium">
+                  <p className="text-sm font-medium text-white">
                     {Math.round((nextShift.endTime.getTime() - nextShift.startTime.getTime()) / (1000 * 60 * 60))}h
                   </p>
-                  <p className="text-xs text-muted-foreground">Duration</p>
+                  <p className="text-xs text-gray-300">Duration</p>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-2">
               <Link href={`/employee/shifts/${nextShift.id}`} className="flex-1">
-                <Button className="w-full">View Details</Button>
+                <Button className="w-full bg-primary/80 hover:bg-primary text-white">View Details</Button>
               </Link>
               {isToday(nextShift.startTime) && (
-                <Button variant="outline" className="flex-1">
+                <Button variant="outline" className="flex-1 bg-white/10 hover:bg-white/20 text-white border-white/20">
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Check In
                 </Button>
               )}
             </div>
           </CardContent>
-        </Card>
+        </GlassCard>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+      <div className="grid gap-6 md:grid-cols-2">
+        <GlassCard>
           <CardHeader>
-            <CardTitle>Upcoming Shifts</CardTitle>
-            <CardDescription>{upcomingShifts.length} shifts scheduled</CardDescription>
+            <CardTitle className="text-white">Upcoming Shifts</CardTitle>
+            <CardDescription className="text-gray-200">{upcomingShifts.length} shifts scheduled</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {upcomingShifts.slice(0, 3).map((shift) => (
-                <div key={shift.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={shift.id} className="flex items-center justify-between p-3 border border-white/20 rounded-lg bg-white/5">
                   <div className="space-y-1">
-                    <p className="font-medium">{shift.siteName}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-medium text-white">{shift.siteName}</p>
+                    <p className="text-sm text-gray-300">
                       {format(shift.startTime, 'MMM dd • h:mm a')} - {format(shift.endTime, 'h:mm a')}
                     </p>
                   </div>
                   <Link href={`/employee/shifts/${shift.id}`}>
-                    <Button variant="ghost" size="sm">View</Button>
+                    <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">View</Button>
                   </Link>
                 </div>
               ))}
               {upcomingShifts.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">
+                <p className="text-sm text-gray-300 text-center py-4">
                   No upcoming shifts
                 </p>
               )}
             </div>
             <Link href="/employee/shifts">
-              <Button variant="outline" className="w-full mt-4">
+              <Button variant="outline" className="w-full mt-4 bg-white/10 hover:bg-white/20 text-white border-white/20">
                 View All Shifts
               </Button>
             </Link>
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks</CardDescription>
+            <CardTitle className="text-white">Quick Actions</CardTitle>
+            <CardDescription className="text-gray-200">Common tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <Link href="/employee/shifts">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border-white/20" variant="outline">
                 <Calendar className="mr-2 h-4 w-4" />
                 View My Schedule
               </Button>
             </Link>
             <Link href="/employee/site-access">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border-white/20" variant="outline">
                 <MapPin className="mr-2 h-4 w-4" />
                 Access Site
               </Button>
             </Link>
             <Link href="/employee/profile/availability">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border-white/20" variant="outline">
                 <Clock className="mr-2 h-4 w-4" />
                 Update Availability
               </Button>
             </Link>
             <Link href="/employee/profile">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border-white/20" variant="outline">
                 <CheckCircle className="mr-2 h-4 w-4" />
                 View Certifications
               </Button>
             </Link>
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
     </div>
   );

@@ -130,7 +130,8 @@ export default function WeatherCard() {
           flex-direction: column;
           align-items: center;
           position: relative;
-          width: 220px;
+          width: 100%;
+          max-width: 400px;
           height: 350px;
           border-radius: 20px;
           overflow: hidden;

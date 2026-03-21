@@ -69,7 +69,7 @@ export default function CompanyDashboardPage() {
   return (
     <div className="space-y-6">
       <NotificationSystem />
-      <div className="flex justify-between items-start">
+      <div className="space-y-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,8 +17,9 @@ import { getSites } from "@/lib/services/site-service-client";
 import { getSuggestedEmployees } from "@/lib/services/employee-service";
 import { createShift } from "@/lib/services/shift-service-client";
 
-export default function CreateShiftPage() {
+function CreateShiftPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [sites, setSites] = useState<any[]>([]);
   const [selectedSite, setSelectedSite] = useState("");
@@ -42,6 +43,20 @@ export default function CreateShiftPage() {
       fetchSites();
     }
   }, [user]);
+
+  // Initialize form from URL parameters
+  useEffect(() => {
+    const dateParam = searchParams.get('date');
+    const siteParam = searchParams.get('site');
+    
+    if (dateParam) {
+      setShiftDate(dateParam);
+    }
+    
+    if (siteParam && sites.length > 0) {
+      setSelectedSite(siteParam);
+    }
+  }, [searchParams, sites]);
 
   const fetchSites = async () => {
     try {
@@ -575,5 +590,17 @@ export default function CreateShiftPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function CreateShiftPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <CreateShiftPageContent />
+    </Suspense>
   );
 }

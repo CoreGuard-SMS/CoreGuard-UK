@@ -26,6 +26,7 @@ export default function ShiftsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDateForCreation, setSelectedDateForCreation] = useState<Date | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,6 +84,21 @@ export default function ShiftsPage() {
     });
   };
 
+  const handleCreateShift = (date?: Date) => {
+    const targetDate = date || selectedDateForCreation || new Date();
+    const dateString = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    // Build URL with context parameters
+    const params = new URLSearchParams();
+    params.set('date', dateString);
+    
+    if (selectedSite !== 'all') {
+      params.set('site', selectedSite);
+    }
+    
+    router.push(`/company/shifts/create?${params.toString()}`);
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -114,7 +130,7 @@ export default function ShiftsPage() {
             </Button>
             <h1 className="text-3xl font-bold">Shift Calendar</h1>
           </div>
-          <Button onClick={() => router.push('/company/shifts/create')}>
+          <Button onClick={() => handleCreateShift()}>
             <Plus className="h-4 w-4 mr-2" />
             Create Shifts
           </Button>
@@ -123,9 +139,9 @@ export default function ShiftsPage() {
         <ShiftCalendar 
           shifts={filteredShifts}
           sites={sites}
-          onDateSelect={(date) => console.log('Date selected:', date)}
+          onDateSelect={(date) => setSelectedDateForCreation(date)}
           onShiftClick={(shift) => router.push(`/company/shifts/${shift.id}`)}
-          onCreateShift={(date) => console.log('Create shift for:', date)}
+          onCreateShift={(date) => handleCreateShift(date)}
         />
       </div>
     );
@@ -145,7 +161,7 @@ export default function ShiftsPage() {
             <Calendar className="h-4 w-4 mr-2" />
             Calendar View
           </Button>
-          <Button onClick={() => router.push('/company/shifts/create')}>
+          <Button onClick={() => handleCreateShift()}>
             <Plus className="h-4 w-4 mr-2" />
             Create Shifts
           </Button>
@@ -221,7 +237,7 @@ export default function ShiftsPage() {
                   ? "Get started by creating your first shift"
                   : "Try adjusting your filters to see more shifts"}
               </p>
-              <Button onClick={() => router.push('/company/shifts/create')}>
+              <Button onClick={() => handleCreateShift()}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Shift
               </Button>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LoadingProvider } from "@/components/loading-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -28,7 +29,14 @@ export default function RootLayout({
       >
         <LoadingProvider>
           <TooltipProvider>
-            {children}
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
           </TooltipProvider>
         </LoadingProvider>
       </body>

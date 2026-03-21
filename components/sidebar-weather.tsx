@@ -1,18 +1,39 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Cloud, MapPin } from "lucide-react";
+import { Cloud, Sun, Moon, CloudRain, Wind, Droplets, Eye } from "lucide-react";
 
 interface WeatherData {
   location: string;
   temperature: number;
   condition: string;
-  time: string;
+  high: number;
+  low: number;
+  wind: number;
+  humidity: number;
+  visibility: number;
+  icon: React.ReactNode;
 }
 
 export default function SidebarWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isDaytime, setIsDaytime] = useState(true);
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Check if it's daytime
+  useEffect(() => {
+    const hour = currentTime.getHours();
+    setIsDaytime(hour >= 6 && hour < 18);
+  }, [currentTime]);
 
   useEffect(() => {
     fetchWeatherData();
@@ -20,7 +41,7 @@ export default function SidebarWeather() {
 
   const fetchWeatherData = async () => {
     try {
-      // Get user's location or default to London
+      // Get user's location or default to Sydney
       if (!navigator.geolocation) {
         setWeather(getMockWeatherData());
         setLoading(false);
@@ -37,10 +58,15 @@ export default function SidebarWeather() {
           
           if (data) {
             setWeather({
-              location: data.location,
-              temperature: data.temperature,
-              condition: data.condition,
-              time: data.time
+              location: data.location || "Sydney",
+              temperature: data.temperature || 24,
+              condition: data.condition || "Cloudy",
+              high: data.high || 28,
+              low: data.low || 20,
+              wind: data.wind || 9,
+              humidity: data.humidity || 68,
+              visibility: data.visibility || 10,
+              icon: getWeatherIcon(data.condition || "Cloudy")
             });
           } else {
             setWeather(getMockWeatherData());
@@ -60,18 +86,51 @@ export default function SidebarWeather() {
     }
   };
 
+  const getWeatherIcon = (condition: string) => {
+    const hour = currentTime.getHours();
+    const isNight = hour < 6 || hour >= 18;
+    
+    switch (condition.toLowerCase()) {
+      case 'rain':
+      case 'rainy':
+        return <CloudRain className="w-32 h-32" />;
+      case 'clear':
+      case 'sunny':
+        return isNight ? <Moon className="w-32 h-32" /> : <Sun className="w-32 h-32" />;
+      default:
+        return <Cloud className="w-32 h-32" />;
+    }
+  };
+
   const getMockWeatherData = (): WeatherData => ({
-    location: "London, UK",
-    temperature: 18,
-    condition: "Partly Cloudy",
-    time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    location: "Sydney",
+    temperature: 24,
+    condition: "Cloudy",
+    high: 28,
+    low: 20,
+    wind: 9,
+    humidity: 68,
+    visibility: 10,
+    icon: getWeatherIcon("Cloudy")
   });
+
+  const formatDate = (date: Date) => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${dayName} ${day} ${month} ${year}`;
+  };
 
   if (loading) {
     return (
       <div className="px-3 py-2">
         <div className="animate-pulse">
-          <div className="h-20 bg-muted rounded-lg"></div>
+          <div className="h-64 bg-muted rounded-lg"></div>
         </div>
       </div>
     );
@@ -82,162 +141,73 @@ export default function SidebarWeather() {
   }
 
   return (
-    <>
-      <style jsx>{`
-        * {
-          padding: 0;
-          margin: 0;
-          color: #FFF;
-        }
-
-        .container {
-          overflow: hidden;
-          z-index: 10;
-          position: relative;
-          margin: 0 auto;
-          height: 90px;
-          width: 100%;
-          background-color: #F17022;
-          border-radius: 10px;
-          box-shadow: 2px 2px 1px rgba(0,0,0,0.2);
-        }
-
-        /* BACKGROUND */
-        .Circle1 {
-          z-index: 100;
-          position: absolute;
-          height: 80px;
-          width: 80px;
-          right: -20px;
-          top: -30px;
-          border-radius: 50%;
-          background-color: rgba(253,184,19,1);
-          animation: enlarge;
-          animation-duration: 5s;
-          animation-iteration-count: infinite;
-        }
-
-        .Circle2 {
-          z-index: 80;
-          position: absolute;
-          height: 150px;
-          width: 150px;
-          right: -50px;
-          top: -70px;
-          border-radius: 50%;
-          background-color: rgba(246,140,31,0.7);
-          animation: enlarge;
-          animation-duration: 7s;
-          animation-iteration-count: infinite;
-        }
-
-        .Circle3 {
-          z-index: 50;
-          position: absolute;
-          height: 200px;
-          width: 200px;
-          right: -50px;
-          top: -100px;
-          border-radius: 50%;
-          background-color: rgba(241,125,45,0.7);
-          animation: enlarge;
-          animation-duration: 10s;
-          animation-iteration-count: infinite;
-        }
-
-        /* CONTENT */
-        .sun {
-          z-index: 1000;
-          font-size: 15px !important;
-        }
-
-        .Condition {
-          z-index: 1000;
-          position: absolute;
-          font-family: "Roboto", sans-serif;
-          font-weight: 100;
-          font-size: 20px;
-          left: 20px;  
-          top: 10px;
-        }
-
-        .Temp {
-          z-index: 1000;
-          position: absolute;
-          font-family: "Roboto", sans-serif;
-          font-size: 35px;
-          font-weight: 400;
-          left: 20px;
-          bottom: 5px;
-        }
-
-        #F {
-          z-index: 1000;
-          font-family: "Roboto",sans-serif;
-          font-weight: 100;
-          font-size: 30px;
-        }
-
-        .Time {
-          z-index: 1000;
-          position: absolute;
-          font-family: "Noto Sans", sans-serif;
-          font-size: 18px;
-          font-weight: 200;
-          right: 20px;
-          top: 10px;
-        }
-
-        .locationIcon {
-          z-index: 1000;
-          font-size: 10px !important;
-        }
-
-        .Location {
-          z-index: 1000;
-          position: absolute;
-          font-family: "Noto Sans", sans-serif;
-          font-size: 12px;
-          font-weight: 200;
-          right: 20px;
-          bottom: 15px;
-        }
-
-        @keyframes enlarge {
-          50% {
-            transform: scale(1.2);
-          }
-        }
-      `}</style>
-
-      <div className="px-3 py-2">
-        <div className="container">
-          {/* BACKGROUND CIRCLES */}
-          <div className="Circle1"></div>
-          <div className="Circle2"></div>
-          <div className="Circle3"></div>
-
-          {/* CONTENT */}
-          <div className="sun">
-            <Cloud className="text-white" />
+    <div className="px-3 py-2">
+      <div className={`flex flex-col ${isDaytime ? 'bg-white' : 'bg-gray-900'} rounded p-4 w-full max-w-xs transition-colors duration-1000`}>
+        <div className={`font-bold text-xl ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
+          {weather.location}
+        </div>
+        <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
+          {formatDate(currentTime)}
+        </div>
+        
+        <div className={`mt-6 text-6xl self-center inline-flex items-center justify-center rounded-lg ${isDaytime ? 'text-indigo-400' : 'text-indigo-300'} h-24 w-24 transition-colors duration-1000`}>
+          {weather.icon}
+        </div>
+        
+        <div className="flex flex-row items-center justify-center mt-6">
+          <div className={`font-medium text-6xl ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
+            {weather.temperature}°
           </div>
-          
-          <div className="Condition">{weather.condition}</div>
-          
-          <div className="Temp">
-            {weather.temperature}
-            <span id="F">°C</span>
+          <div className="flex flex-col items-center ml-6">
+            <div className={isDaytime ? 'text-gray-900' : 'text-white'}>
+              {weather.condition}
+            </div>
+            <div className="mt-1">
+              <span className="text-sm">
+                {isDaytime ? '↑' : '↑'}
+              </span>
+              <span className={`text-sm font-light ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
+                {weather.high}°C
+              </span>
+            </div>
+            <div>
+              <span className="text-sm">
+                {isDaytime ? '↓' : '↓'}
+              </span>
+              <span className={`text-sm font-light ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
+                {weather.low}°C
+              </span>
+            </div>
           </div>
-          
-          <div className="Time">{weather.time}</div>
-          
-          <div className="locationIcon">
-            <MapPin className="text-white" />
+        </div>
+        
+        <div className="flex flex-row justify-between mt-6">
+          <div className="flex flex-col items-center">
+            <div className={`font-medium text-sm ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
+              Wind
+            </div>
+            <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
+              {weather.wind}k/h
+            </div>
           </div>
-          
-          <div className="Location">{weather.location}</div>
+          <div className="flex flex-col items-center">
+            <div className={`font-medium text-sm ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
+              Humidity
+            </div>
+            <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
+              {weather.humidity}%
+            </div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className={`font-medium text-sm ${isDaytime ? 'text-gray-900' : 'text-white'}`}>
+              Visibility
+            </div>
+            <div className={`text-sm ${isDaytime ? 'text-gray-500' : 'text-gray-400'}`}>
+              {weather.visibility}km
+            </div>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
